@@ -1,0 +1,16 @@
+Cluster,Variable,Media,Desviación Estándar
+Iberoamérica (Cluster 0),pca_geo_norm,0.4968,0.1403
+Iberoamérica (Cluster 0),famd_trade_norm,0.3463,0.3444
+Iberoamérica (Cluster 0),famd_cult_norm,0.6718,0.1466
+Emergentes (Cluster 1),pca_geo_norm,0.5538,0.1368
+Emergentes (Cluster 1),famd_trade_norm,0.0966,0.1217
+Emergentes (Cluster 1),famd_cult_norm,0.0026,0.0045
+Occidente (Cluster 2),pca_geo_norm,0.0256,0.0477
+Occidente (Cluster 2),famd_trade_norm,0.8848,0.1666
+Occidente (Cluster 2),famd_cult_norm,0.0102,0.0128
+Microestados (Cluster 3),pca_geo_norm,0.1674,0.0917
+Microestados (Cluster 3),famd_trade_norm,0.0933,0.1318
+Microestados (Cluster 3),famd_cult_norm,0.0111,0.0189
+Periféricos (Cluster 4),pca_geo_norm,0.5895,0.0528
+Periféricos (Cluster 4),famd_trade_norm,0.7048,0.0068
+Periféricos (Cluster 4),famd_cult_norm,0.0042,0.0074
