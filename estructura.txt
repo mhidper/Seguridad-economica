@@ -1,0 +1,305 @@
+Listado de rutas de carpetas
+El número de serie del volumen es C874-6BAF
+C:.
+¦   estructura.txt
+¦   README.md
+¦   requirements.txt
+¦   
++---docs
+¦   +---images
+¦   ¦       Logo Elcano.png
+¦   ¦       logo upo.png
+¦   ¦       
+¦   +---metodología
+¦           Anexo Metodológico riesgo clusters.docx
+¦           
++---notebooks
+¦       comunidades.ipynb
+¦       indicadores.ipynb
+¦       indicadores_old_revision.ipynb
+¦       
++---src
+    ¦   __init__.py
+    ¦   
+    +---analysis
+    +---data
+    ¦   ¦   __init__.py
+    ¦   ¦   
+    ¦   +---external
+    ¦   ¦       countries_codes_and_coordinates.csv
+    ¦   ¦       
+    ¦   +---processed
+    ¦   ¦   +---comunidades
+    ¦   ¦   ¦       agglomerative_clustering_results.csv
+    ¦   ¦   ¦       estadisticas_por_cluster.csv
+    ¦   ¦   ¦       estadisticas_por_cluster_restructurado.csv
+    ¦   ¦   ¦       paises_por_cluster.csv
+    ¦   ¦   ¦       paises_por_cluster_nombrado.csv
+    ¦   ¦   ¦       
+    ¦   ¦   +---Dependencias consolidadas
+    ¦   ¦   ¦       dependencias_consolidadas.zip
+    ¦   ¦   ¦       
+    ¦   ¦   +---Matrices de Dependencia
+    ¦   ¦           matriz_dependencia_de_ABW.csv
+    ¦   ¦           matriz_dependencia_de_AFG.csv
+    ¦   ¦           matriz_dependencia_de_AGO.csv
+    ¦   ¦           matriz_dependencia_de_AIA.csv
+    ¦   ¦           matriz_dependencia_de_ALB.csv
+    ¦   ¦           matriz_dependencia_de_AND.csv
+    ¦   ¦           matriz_dependencia_de_ARE.csv
+    ¦   ¦           matriz_dependencia_de_ARG.csv
+    ¦   ¦           matriz_dependencia_de_ARM.csv
+    ¦   ¦           matriz_dependencia_de_ASM.csv
+    ¦   ¦           matriz_dependencia_de_ATA.csv
+    ¦   ¦           matriz_dependencia_de_ATF.csv
+    ¦   ¦           matriz_dependencia_de_ATG.csv
+    ¦   ¦           matriz_dependencia_de_AUS.csv
+    ¦   ¦           matriz_dependencia_de_AUT.csv
+    ¦   ¦           matriz_dependencia_de_AZE.csv
+    ¦   ¦           matriz_dependencia_de_BDI.csv
+    ¦   ¦           matriz_dependencia_de_BEL.csv
+    ¦   ¦           matriz_dependencia_de_BEN.csv
+    ¦   ¦           matriz_dependencia_de_BES.csv
+    ¦   ¦           matriz_dependencia_de_BFA.csv
+    ¦   ¦           matriz_dependencia_de_BGD.csv
+    ¦   ¦           matriz_dependencia_de_BGR.csv
+    ¦   ¦           matriz_dependencia_de_BHR.csv
+    ¦   ¦           matriz_dependencia_de_BHS.csv
+    ¦   ¦           matriz_dependencia_de_BIH.csv
+    ¦   ¦           matriz_dependencia_de_BLM.csv
+    ¦   ¦           matriz_dependencia_de_BLR.csv
+    ¦   ¦           matriz_dependencia_de_BLZ.csv
+    ¦   ¦           matriz_dependencia_de_BMU.csv
+    ¦   ¦           matriz_dependencia_de_BOL.csv
+    ¦   ¦           matriz_dependencia_de_BRA.csv
+    ¦   ¦           matriz_dependencia_de_BRB.csv
+    ¦   ¦           matriz_dependencia_de_BRN.csv
+    ¦   ¦           matriz_dependencia_de_BTN.csv
+    ¦   ¦           matriz_dependencia_de_BVT.csv
+    ¦   ¦           matriz_dependencia_de_BWA.csv
+    ¦   ¦           matriz_dependencia_de_CAF.csv
+    ¦   ¦           matriz_dependencia_de_CAN.csv
+    ¦   ¦           matriz_dependencia_de_CCK.csv
+    ¦   ¦           matriz_dependencia_de_CHE.csv
+    ¦   ¦           matriz_dependencia_de_CHL.csv
+    ¦   ¦           matriz_dependencia_de_CHN.csv
+    ¦   ¦           matriz_dependencia_de_CIV.csv
+    ¦   ¦           matriz_dependencia_de_CMR.csv
+    ¦   ¦           matriz_dependencia_de_COD.csv
+    ¦   ¦           matriz_dependencia_de_COG.csv
+    ¦   ¦           matriz_dependencia_de_COK.csv
+    ¦   ¦           matriz_dependencia_de_COL.csv
+    ¦   ¦           matriz_dependencia_de_COM.csv
+    ¦   ¦           matriz_dependencia_de_CPV.csv
+    ¦   ¦           matriz_dependencia_de_CRI.csv
+    ¦   ¦           matriz_dependencia_de_CUB.csv
+    ¦   ¦           matriz_dependencia_de_CUW.csv
+    ¦   ¦           matriz_dependencia_de_CXR.csv
+    ¦   ¦           matriz_dependencia_de_CYM.csv
+    ¦   ¦           matriz_dependencia_de_CYP.csv
+    ¦   ¦           matriz_dependencia_de_CZE.csv
+    ¦   ¦           matriz_dependencia_de_DEU.csv
+    ¦   ¦           matriz_dependencia_de_DJI.csv
+    ¦   ¦           matriz_dependencia_de_DMA.csv
+    ¦   ¦           matriz_dependencia_de_DNK.csv
+    ¦   ¦           matriz_dependencia_de_DOM.csv
+    ¦   ¦           matriz_dependencia_de_DZA.csv
+    ¦   ¦           matriz_dependencia_de_ECU.csv
+    ¦   ¦           matriz_dependencia_de_EGY.csv
+    ¦   ¦           matriz_dependencia_de_ERI.csv
+    ¦   ¦           matriz_dependencia_de_ESH.csv
+    ¦   ¦           matriz_dependencia_de_ESP.csv
+    ¦   ¦           matriz_dependencia_de_EST.csv
+    ¦   ¦           matriz_dependencia_de_ETH.csv
+    ¦   ¦           matriz_dependencia_de_FIN.csv
+    ¦   ¦           matriz_dependencia_de_FJI.csv
+    ¦   ¦           matriz_dependencia_de_FLK.csv
+    ¦   ¦           matriz_dependencia_de_FRA.csv
+    ¦   ¦           matriz_dependencia_de_FRE.csv
+    ¦   ¦           matriz_dependencia_de_FRO.csv
+    ¦   ¦           matriz_dependencia_de_FSM.csv
+    ¦   ¦           matriz_dependencia_de_GAB.csv
+    ¦   ¦           matriz_dependencia_de_GAZ.csv
+    ¦   ¦           matriz_dependencia_de_GBR.csv
+    ¦   ¦           matriz_dependencia_de_GEO.csv
+    ¦   ¦           matriz_dependencia_de_GHA.csv
+    ¦   ¦           matriz_dependencia_de_GIB.csv
+    ¦   ¦           matriz_dependencia_de_GIN.csv
+    ¦   ¦           matriz_dependencia_de_GMB.csv
+    ¦   ¦           matriz_dependencia_de_GNB.csv
+    ¦   ¦           matriz_dependencia_de_GNQ.csv
+    ¦   ¦           matriz_dependencia_de_GRC.csv
+    ¦   ¦           matriz_dependencia_de_GRD.csv
+    ¦   ¦           matriz_dependencia_de_GRL.csv
+    ¦   ¦           matriz_dependencia_de_GTM.csv
+    ¦   ¦           matriz_dependencia_de_GUM.csv
+    ¦   ¦           matriz_dependencia_de_GUY.csv
+    ¦   ¦           matriz_dependencia_de_HKG.csv
+    ¦   ¦           matriz_dependencia_de_HMD.csv
+    ¦   ¦           matriz_dependencia_de_HND.csv
+    ¦   ¦           matriz_dependencia_de_HRV.csv
+    ¦   ¦           matriz_dependencia_de_HTI.csv
+    ¦   ¦           matriz_dependencia_de_HUN.csv
+    ¦   ¦           matriz_dependencia_de_IDN.csv
+    ¦   ¦           matriz_dependencia_de_IND.csv
+    ¦   ¦           matriz_dependencia_de_IOT.csv
+    ¦   ¦           matriz_dependencia_de_IRL.csv
+    ¦   ¦           matriz_dependencia_de_IRN.csv
+    ¦   ¦           matriz_dependencia_de_IRQ.csv
+    ¦   ¦           matriz_dependencia_de_ISL.csv
+    ¦   ¦           matriz_dependencia_de_ISR.csv
+    ¦   ¦           matriz_dependencia_de_ITA.csv
+    ¦   ¦           matriz_dependencia_de_JAM.csv
+    ¦   ¦           matriz_dependencia_de_JOR.csv
+    ¦   ¦           matriz_dependencia_de_JPN.csv
+    ¦   ¦           matriz_dependencia_de_KAZ.csv
+    ¦   ¦           matriz_dependencia_de_KEN.csv
+    ¦   ¦           matriz_dependencia_de_KGZ.csv
+    ¦   ¦           matriz_dependencia_de_KHM.csv
+    ¦   ¦           matriz_dependencia_de_KIR.csv
+    ¦   ¦           matriz_dependencia_de_KNA.csv
+    ¦   ¦           matriz_dependencia_de_KOR.csv
+    ¦   ¦           matriz_dependencia_de_KWT.csv
+    ¦   ¦           matriz_dependencia_de_LAO.csv
+    ¦   ¦           matriz_dependencia_de_LBN.csv
+    ¦   ¦           matriz_dependencia_de_LBR.csv
+    ¦   ¦           matriz_dependencia_de_LBY.csv
+    ¦   ¦           matriz_dependencia_de_LCA.csv
+    ¦   ¦           matriz_dependencia_de_LIE.csv
+    ¦   ¦           matriz_dependencia_de_LKA.csv
+    ¦   ¦           matriz_dependencia_de_LSO.csv
+    ¦   ¦           matriz_dependencia_de_LTU.csv
+    ¦   ¦           matriz_dependencia_de_LUX.csv
+    ¦   ¦           matriz_dependencia_de_LVA.csv
+    ¦   ¦           matriz_dependencia_de_MAC.csv
+    ¦   ¦           matriz_dependencia_de_MAR.csv
+    ¦   ¦           matriz_dependencia_de_MDA.csv
+    ¦   ¦           matriz_dependencia_de_MDG.csv
+    ¦   ¦           matriz_dependencia_de_MDV.csv
+    ¦   ¦           matriz_dependencia_de_MEX.csv
+    ¦   ¦           matriz_dependencia_de_MHL.csv
+    ¦   ¦           matriz_dependencia_de_MKD.csv
+    ¦   ¦           matriz_dependencia_de_MLI.csv
+    ¦   ¦           matriz_dependencia_de_MLT.csv
+    ¦   ¦           matriz_dependencia_de_MMR.csv
+    ¦   ¦           matriz_dependencia_de_MNE.csv
+    ¦   ¦           matriz_dependencia_de_MNG.csv
+    ¦   ¦           matriz_dependencia_de_MNP.csv
+    ¦   ¦           matriz_dependencia_de_MOZ.csv
+    ¦   ¦           matriz_dependencia_de_MRT.csv
+    ¦   ¦           matriz_dependencia_de_MSR.csv
+    ¦   ¦           matriz_dependencia_de_MUS.csv
+    ¦   ¦           matriz_dependencia_de_MWI.csv
+    ¦   ¦           matriz_dependencia_de_MYS.csv
+    ¦   ¦           matriz_dependencia_de_NAM.csv
+    ¦   ¦           matriz_dependencia_de_NCL.csv
+    ¦   ¦           matriz_dependencia_de_NER.csv
+    ¦   ¦           matriz_dependencia_de_NFK.csv
+    ¦   ¦           matriz_dependencia_de_NGA.csv
+    ¦   ¦           matriz_dependencia_de_NIC.csv
+    ¦   ¦           matriz_dependencia_de_NIU.csv
+    ¦   ¦           matriz_dependencia_de_NLD.csv
+    ¦   ¦           matriz_dependencia_de_NOR.csv
+    ¦   ¦           matriz_dependencia_de_NPL.csv
+    ¦   ¦           matriz_dependencia_de_NRU.csv
+    ¦   ¦           matriz_dependencia_de_NZL.csv
+    ¦   ¦           matriz_dependencia_de_OMN.csv
+    ¦   ¦           matriz_dependencia_de_PAK.csv
+    ¦   ¦           matriz_dependencia_de_PAN.csv
+    ¦   ¦           matriz_dependencia_de_PCN.csv
+    ¦   ¦           matriz_dependencia_de_PER.csv
+    ¦   ¦           matriz_dependencia_de_PHL.csv
+    ¦   ¦           matriz_dependencia_de_PLW.csv
+    ¦   ¦           matriz_dependencia_de_PNG.csv
+    ¦   ¦           matriz_dependencia_de_POL.csv
+    ¦   ¦           matriz_dependencia_de_PRK.csv
+    ¦   ¦           matriz_dependencia_de_PRT.csv
+    ¦   ¦           matriz_dependencia_de_PRY.csv
+    ¦   ¦           matriz_dependencia_de_PSE.csv
+    ¦   ¦           matriz_dependencia_de_PYF.csv
+    ¦   ¦           matriz_dependencia_de_QAT.csv
+    ¦   ¦           matriz_dependencia_de_ROU.csv
+    ¦   ¦           matriz_dependencia_de_RUS.csv
+    ¦   ¦           matriz_dependencia_de_RWA.csv
+    ¦   ¦           matriz_dependencia_de_SAU.csv
+    ¦   ¦           matriz_dependencia_de_SDN.csv
+    ¦   ¦           matriz_dependencia_de_SEN.csv
+    ¦   ¦           matriz_dependencia_de_SGP.csv
+    ¦   ¦           matriz_dependencia_de_SGS.csv
+    ¦   ¦           matriz_dependencia_de_SHN.csv
+    ¦   ¦           matriz_dependencia_de_SLB.csv
+    ¦   ¦           matriz_dependencia_de_SLE.csv
+    ¦   ¦           matriz_dependencia_de_SLV.csv
+    ¦   ¦           matriz_dependencia_de_SMR.csv
+    ¦   ¦           matriz_dependencia_de_SOM.csv
+    ¦   ¦           matriz_dependencia_de_SPM.csv
+    ¦   ¦           matriz_dependencia_de_SRB.csv
+    ¦   ¦           matriz_dependencia_de_SSD.csv
+    ¦   ¦           matriz_dependencia_de_STP.csv
+    ¦   ¦           matriz_dependencia_de_SUR.csv
+    ¦   ¦           matriz_dependencia_de_SVK.csv
+    ¦   ¦           matriz_dependencia_de_SVN.csv
+    ¦   ¦           matriz_dependencia_de_SWE.csv
+    ¦   ¦           matriz_dependencia_de_SWZ.csv
+    ¦   ¦           matriz_dependencia_de_SXM.csv
+    ¦   ¦           matriz_dependencia_de_SYC.csv
+    ¦   ¦           matriz_dependencia_de_SYR.csv
+    ¦   ¦           matriz_dependencia_de_TCA.csv
+    ¦   ¦           matriz_dependencia_de_TCD.csv
+    ¦   ¦           matriz_dependencia_de_TGO.csv
+    ¦   ¦           matriz_dependencia_de_THA.csv
+    ¦   ¦           matriz_dependencia_de_TJK.csv
+    ¦   ¦           matriz_dependencia_de_TKL.csv
+    ¦   ¦           matriz_dependencia_de_TKM.csv
+    ¦   ¦           matriz_dependencia_de_TLS.csv
+    ¦   ¦           matriz_dependencia_de_TON.csv
+    ¦   ¦           matriz_dependencia_de_TTO.csv
+    ¦   ¦           matriz_dependencia_de_TUN.csv
+    ¦   ¦           matriz_dependencia_de_TUR.csv
+    ¦   ¦           matriz_dependencia_de_TUV.csv
+    ¦   ¦           matriz_dependencia_de_TWN.csv
+    ¦   ¦           matriz_dependencia_de_TZA.csv
+    ¦   ¦           matriz_dependencia_de_UGA.csv
+    ¦   ¦           matriz_dependencia_de_UKR.csv
+    ¦   ¦           matriz_dependencia_de_UMI.csv
+    ¦   ¦           matriz_dependencia_de_URY.csv
+    ¦   ¦           matriz_dependencia_de_USA.csv
+    ¦   ¦           matriz_dependencia_de_UZB.csv
+    ¦   ¦           matriz_dependencia_de_VAT.csv
+    ¦   ¦           matriz_dependencia_de_VCT.csv
+    ¦   ¦           matriz_dependencia_de_VEN.csv
+    ¦   ¦           matriz_dependencia_de_VGB.csv
+    ¦   ¦           matriz_dependencia_de_VNM.csv
+    ¦   ¦           matriz_dependencia_de_VUT.csv
+    ¦   ¦           matriz_dependencia_de_WLF.csv
+    ¦   ¦           matriz_dependencia_de_WSM.csv
+    ¦   ¦           matriz_dependencia_de_YEM.csv
+    ¦   ¦           matriz_dependencia_de_ZAF.csv
+    ¦   ¦           matriz_dependencia_de_ZMB.csv
+    ¦   ¦           matriz_dependencia_de_ZWE.csv
+    ¦   ¦           
+    ¦   +---raw
+    ¦   ¦   +---ITP
+    ¦   ¦           ITPD_E_R02.csv.parte0.gz
+    ¦   ¦           ITPD_E_R02.csv.parte1.gz
+    ¦   ¦           ITPD_E_R02.csv.parte2.gz
+    ¦   ¦           ITPD_E_R02.csv.parte3.gz
+    ¦   ¦           ITPD_E_R02.csv.parte4.gz
+    ¦   ¦           ITPD_E_R02.csv.parte5.gz
+    ¦   ¦           ITPD_E_R02.csv.parte6.gz
+    ¦   ¦           
+    ¦   +---__pycache__
+    ¦           __init__.cpython-39.pyc
+    ¦           
+    +---visualization
+    ¦   ¦   app.py
+    ¦   ¦   dependency_dashboard.py
+    ¦   ¦   load_data.py
+    ¦   ¦   __init__.py
+    ¦   ¦   
+    ¦   +---__pycache__
+    ¦           load_data.cpython-39.pyc
+    ¦           
+    +---__pycache__
+            __init__.cpython-39.pyc
+            
