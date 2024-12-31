@@ -34,3 +34,27 @@ wheels/
 # System files
 .DS_Store
 Thumbs.db
+
+# LaTeX temporal files
+*.aux
+*.log
+*.toc
+*.out
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+
+# BibTeX
+*.bbl
+*.blg
+*.bcf
+*.run.xml
+
+# Build directory
+_minted*/
+
+# Editor backup files
+*.bak
+*.sav
+*~
+.*.swp
