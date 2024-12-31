@@ -1,6 +1,9 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+from pathlib import Path
+import gzip
+from load_data import load_dependency_data, load_clustering_data, build_dependency_matrix, process_data_for_visualization
 
 # Configuración de la página para usar todo el ancho
 st.set_page_config(
@@ -30,74 +33,6 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-def load_dependency_data(csv_path):
-    """
-    Carga el CSV consolidado de dependencias.
-    """
-    return pd.read_csv(csv_path)
-
-def build_dependency_matrix(data, target_country):
-    """
-    Construye la matriz de dependencia para un país objetivo desde el CSV consolidado.
-    """
-    country_data = data[data['dependent_country'] == target_country]
-    matrix = country_data.pivot(
-        index='industry',
-        columns='supplier_country',
-        values='dependency_value'
-    ).fillna(0)
-    return matrix
-
-def process_data_for_visualization(df, clustering_data, selected_industry=None):
-    """
-    Procesa el DataFrame para visualización, incluyendo información de clusters
-    """
-    if selected_industry and selected_industry != 'Todas las industrias':
-        industry_data = df.loc[selected_industry]
-        significant_countries = industry_data[industry_data > 0].sort_values(ascending=False)
-        
-        # Crear DataFrame base
-        viz_data = pd.DataFrame({
-            'Industry': selected_industry,
-            'Country': significant_countries.index,
-            'Value': significant_countries.values
-        })
-        
-        # Añadir información del cluster
-        viz_data = pd.merge(
-            viz_data,
-            clustering_data[['iso_d', 'cluster']],
-            left_on='Country',
-            right_on='iso_d',
-            how='left'
-        )
-    else:
-        viz_data = []
-        for industry in df.index:
-            industry_data = df.loc[industry]
-            significant_countries = industry_data[industry_data > 0].sort_values(ascending=False)
-            for country, value in significant_countries.items():
-                viz_data.append({
-                    'Industry': industry,
-                    'Country': country,
-                    'Value': value
-                })
-        viz_data = pd.DataFrame(viz_data)
-        
-        # Añadir información del cluster
-        viz_data = pd.merge(
-            viz_data,
-            clustering_data[['iso_d', 'cluster']],
-            left_on='Country',
-            right_on='iso_d',
-            how='left'
-        )
-    
-    # Ordenar por cluster y valor
-    viz_data = viz_data.sort_values(['cluster', 'Value'], ascending=[True, False])
-    
-    return viz_data
-
 def get_cluster_colors():
     """
     Define los colores para cada cluster basados en el nivel de riesgo
@@ -124,14 +59,10 @@ def create_treemap(df, country):
         4: "América Latina: Aliados Regionales Clave"
     }
     
-    # Obtener los colores
     cluster_colors = get_cluster_colors()
     
-    # Crear una nueva columna con los nombres descriptivos de los clusters
     df['cluster_name'] = df['cluster'].map(cluster_names)
     df['cluster_color'] = df['cluster'].map(cluster_colors)
-    
-    # Crear una columna combinada para el path
     df['Country_Cluster'] = df['Country'] + ' (' + df['cluster_name'] + ')'
     
     fig = px.treemap(
@@ -159,11 +90,7 @@ def create_treemap(df, country):
             'yanchor': 'top'
         },
         showlegend=True,
-        coloraxis_showscale=False
-    )
-    
-    # Ajustar la posición de la leyenda
-    fig.update_layout(
+        coloraxis_showscale=False,
         legend=dict(
             yanchor="top",
             y=0.99,
@@ -226,10 +153,7 @@ def display_statistics(viz_data, selected_industry):
         4: "América Latina: Aliados Regionales Clave"
     }
     
-    # Obtener los colores
     cluster_colors = get_cluster_colors()
-    
-    # Añadir nombres descriptivos de clusters
     viz_data['cluster_name'] = viz_data['cluster'].map(cluster_names)
     
     col1, col2, col3 = st.columns([1, 1, 1])
@@ -240,7 +164,6 @@ def display_statistics(viz_data, selected_industry):
             total_dependency = viz_data['Value'].sum()
             st.metric(f'Dependencia Total para {selected_industry}', f'{total_dependency:.3f}')
             
-            # Calcular estadísticas por cluster
             cluster_stats = viz_data.groupby('cluster_name')['Value'].agg(['sum', 'count']).round(3)
             cluster_stats['percentage'] = (cluster_stats['sum'] / total_dependency * 100).round(2)
             cluster_stats = cluster_stats.sort_values('sum', ascending=False)
@@ -274,10 +197,8 @@ def display_statistics(viz_data, selected_industry):
         if selected_industry != 'Todas las industrias':
             st.subheader('Distribución por Cluster')
             
-            # Calcular estadísticas por cluster para el gráfico de tarta
             cluster_stats = viz_data.groupby('cluster_name')['Value'].sum().round(3)
             
-            # Crear gráfico de tarta con los colores específicos
             fig = px.pie(
                 values=cluster_stats,
                 names=cluster_stats.index,
@@ -306,49 +227,62 @@ def display_statistics(viz_data, selected_industry):
 def main():
     st.title('Análisis de Dependencias Comerciales')
     
-    # Cargar datos
-    csv_path = "C:/Users/Usuario/Documents/Github/Seguridad económica/Resultados/CSV dependencia/dependencias_consolidadas.csv"
-    clustering_path = "C:/Users/Usuario/Documents/Github/Seguridad económica/Resultados/comunidades/agglomerative_clustering_results.csv"
-    
-    data = load_dependency_data(csv_path)
-    clustering_data = pd.read_csv(clustering_path, sep=';')
-    
-    # Contenedor para los selectores
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        dependent_countries = sorted(data['dependent_country'].unique())
-        selected_country = st.selectbox(
-            'Seleccione un país para analizar sus dependencias:',
-            dependent_countries
-        )
-    
-    if selected_country:
-        dependency_matrix = build_dependency_matrix(data, selected_country)
+    # Cargar datos usando las funciones actualizadas del módulo load_data
+    try:
+        data = load_dependency_data()
+        clustering_data = load_clustering_data()
         
-        with col2:
-            industries = ['Todas las industrias'] + list(dependency_matrix.index)
-            selected_industry = st.selectbox(
-                'Seleccione una industria:',
-                industries
+        if data is None or clustering_data is None:
+            st.error("Error al cargar los datos. Por favor verifica los archivos de entrada.")
+            return
+            
+        # Contenedor para los selectores
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            dependent_countries = sorted(data['dependent_country'].unique())
+            selected_country = st.selectbox(
+                'Seleccione un país para analizar sus dependencias:',
+                dependent_countries
             )
         
-        # Procesar datos y mostrar visualizaciones
-        viz_data = process_data_for_visualization(dependency_matrix, clustering_data, selected_industry)
-        
-        # Crear pestañas para las diferentes visualizaciones
-        tab1, tab2 = st.tabs(["Mapa Mundial", "Árbol de Dependencias"])
-        
-        with tab1:
-            map_fig = create_choropleth_map(viz_data, selected_country, selected_industry)
-            st.plotly_chart(map_fig, use_container_width=True)
+        if selected_country:
+            dependency_matrix = build_dependency_matrix(data, selected_country)
             
-        with tab2:
-            tree_fig = create_treemap(viz_data, selected_country)
-            st.plotly_chart(tree_fig, use_container_width=True)
-        
-        # Mostrar estadísticas
-        display_statistics(viz_data, selected_industry)
+            if dependency_matrix is None:
+                st.error("Error al construir la matriz de dependencia.")
+                return
+                
+            with col2:
+                industries = ['Todas las industrias'] + list(dependency_matrix.index)
+                selected_industry = st.selectbox(
+                    'Seleccione una industria:',
+                    industries
+                )
+            
+            # Procesar datos y mostrar visualizaciones
+            viz_data = process_data_for_visualization(dependency_matrix, clustering_data, selected_industry)
+            
+            if viz_data is None:
+                st.error("Error al procesar los datos para visualización.")
+                return
+            
+            # Crear pestañas para las diferentes visualizaciones
+            tab1, tab2 = st.tabs(["Mapa Mundial", "Árbol de Dependencias"])
+            
+            with tab1:
+                map_fig = create_choropleth_map(viz_data, selected_country, selected_industry)
+                st.plotly_chart(map_fig, use_container_width=True)
+                
+            with tab2:
+                tree_fig = create_treemap(viz_data, selected_country)
+                st.plotly_chart(tree_fig, use_container_width=True)
+            
+            # Mostrar estadísticas
+            display_statistics(viz_data, selected_industry)
+            
+    except Exception as e:
+        st.error(f"Error inesperado: {str(e)}")
 
 if __name__ == '__main__':
     main()
