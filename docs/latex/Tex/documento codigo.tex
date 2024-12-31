@@ -1,0 +1,996 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage{tcolorbox}
+\usepackage{enumitem}
+\usepackage{helvet}
+\renewcommand{\familydefault}{\sfdefault}
+
+% Configuración de colores
+\definecolor{titlecolor}{RGB}{31, 61, 90}
+\definecolor{sectioncolor}{RGB}{47, 93, 138}
+\definecolor{codebackground}{RGB}{248, 248, 248}
+\definecolor{codecomment}{RGB}{112, 128, 144}
+\definecolor{codekeyword}{RGB}{0, 119, 170}
+\definecolor{codestring}{RGB}{170, 55, 55}
+
+% Configuración de títulos
+\titleformat{\section}
+{\Large\bfseries\color{sectioncolor}}{\thesection}{1em}{}
+\titleformat{\subsection}
+{\large\bfseries\color{sectioncolor}}{\thesubsection}{1em}{}
+
+% Configuración de encabezado y pie de página
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small Índice de Seguridad Económica}
+\fancyhead[R]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% Configuración para código Python
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    backgroundcolor=\color{codebackground},
+    commentstyle=\color{codecomment},
+    keywordstyle=\color{codekeyword},
+    stringstyle=\color{codestring},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    numbersep=5pt,
+    frame=none,           % Eliminado el marco del código
+    framesep=3mm,
+    showstringspaces=false,
+    xleftmargin=15pt,
+    xrightmargin=15pt
+}
+\title{\color{titlecolor}\Huge Índice de Seguridad Económica\\[1cm]
+       \large Real Instituto Elcano}
+\author{\large Documentación Técnica}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+
+\begin{tcolorbox}[colback=blue!5,colframe=blue!35,title=Resumen del Proyecto]
+Este documento describe el desarrollo de un índice de seguridad económica basado en el análisis de dependencias comerciales internacionales. Utiliza datos de la International Trade and Production Database (ITP) para evaluar y cuantificar las relaciones comerciales entre países.
+\end{tcolorbox}
+
+\section{Descripción General}
+El análisis se fundamenta en datos de comercio internacional y está diseñado para proporcionar una medida objetiva de la seguridad económica a través del estudio de las dependencias comerciales entre naciones.
+
+\section{Estructura del Código}
+
+\subsection{Preparación de Datos}
+El procesamiento inicial de datos comprende:
+
+\begin{itemize}[leftmargin=*]
+    \item Integración de archivos comprimidos (.gz) de la base de datos
+    \item Consolidación en un único archivo CSV
+    \item Filtrado específico para el año 2019
+    \item Extracción de países importadores únicos
+\end{itemize}
+
+\begin{tcolorbox}[colback=codebackground,title=Código de Preparación]
+\begin{lstlisting}
+# Definición de rutas
+source_directory = Path("../Datos/ITP/")
+target_directory = Path("../Datos/ITP/")
+target_filename = 'ITPD_E_R02.csv'
+
+# Listar archivos
+chunk_filenames = [f for f in os.listdir(source_directory) 
+                  if f.startswith('ITPD_E_R02.csv.parte') 
+                  and f.endswith('.gz')]
+
+# Combinación de archivos
+with open(target_filepath, 'wb') as target_file:
+    for chunk_filename in tqdm(chunk_filenames):
+        chunk_filepath = source_directory / chunk_filename
+        with gzip.open(chunk_filepath, 'rb') as chunk_file:
+            target_file.write(chunk_file.read())
+
+# Carga y filtrado
+itp = pd.read_csv(target_filepath, sep=",")
+itp2019 = itp[itp['year']==2019].copy()
+\end{lstlisting}
+\end{tcolorbox}
+
+\subsection{Análisis de Dependencia Comercial}
+La clase central \texttt{AnalisisDependenciaComercial} implementa la lógica principal del análisis:
+
+\begin{tcolorbox}[colback=codebackground,title=Clase Principal]
+\begin{lstlisting}
+class AnalisisDependenciaComercial:
+    def __init__(self, codigos_paises: List[str]):
+        self.codigos_paises = sorted(codigos_paises)
+        self.matrices = {}
+        self.matrices_O = None
+        self.resultados_dependencia = {}
+\end{lstlisting}
+\end{tcolorbox}
+
+\section{Tecnologías Implementadas}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{pandas}: Manipulación y análisis de datos
+    \item \textbf{numpy}: Operaciones matemáticas y matriciales
+    \item \textbf{gzip}: Manejo de archivos comprimidos
+    \item \textbf{tqdm}: Visualización de progreso
+    \item \textbf{matplotlib}: Visualización de datos
+\end{itemize}
+
+\section{Matrices de Comercio Bilateral}
+
+La función \texttt{crear\_matriz\_comercio} transforma datos de comercio bilateral en matrices por industria. Para cada industria $k$, se construye una matriz $M^k$ donde:
+
+\begin{equation}
+m^k_{ij} = \text{trade}_{ij}^k
+\end{equation}
+
+Donde:
+\begin{itemize}
+    \item $m^k_{ij}$ representa el valor en la matriz para la industria $k$ en la posición $(i,j)$
+    \item $i \in \{1,\ldots,n\}$ representa el país exportador
+    \item $j \in \{1,\ldots,n\}$ representa el país importador
+    \item $n$ es el número total de países en \texttt{codigos\_paises}
+\end{itemize}
+
+La matriz completa para cada industria $k$ se puede expresar como:
+
+\begin{equation}
+M^k = \begin{pmatrix}
+m_{11}^k & m_{12}^k & \cdots & m_{1n}^k \\
+m_{21}^k & m_{22}^k & \cdots & m_{2n}^k \\
+\vdots & \vdots & \ddots & \vdots \\
+m_{n1}^k & m_{n2}^k & \cdots & m_{nn}^k
+\end{pmatrix}
+\end{equation}
+
+Donde cada elemento $m_{ij}^k$ representa el flujo comercial del país $i$ al país $j$ en la industria $k$.
+
+\begin{tcolorbox}[colback=codebackground,title=Implementación del Método]
+\begin{lstlisting}
+def crear_matriz_comercio(self, grouped_data) -> Dict[str, pd.DataFrame]:
+    matrices = {}
+    required_columns = {'exporter_iso3', 'importer_iso3', 'trade'}
+    
+    if not required_columns.issubset(grouped_data.obj.columns):
+        raise ValueError(f"Los datos deben contener las columnas: {required_columns}")
+    
+    for industry, group in tqdm(grouped_data, desc="Creando matrices de comercio"):
+        matrix_df = pd.DataFrame(
+            0.0,
+            index=self.codigos_paises,
+            columns=self.codigos_paises
+        )
+        
+        valid_trades = group[
+            group['exporter_iso3'].isin(self.codigos_paises) & 
+            group['importer_iso3'].isin(self.codigos_paises)
+        ]
+        
+        for _, row in valid_trades.iterrows():
+            matrix_df.at[row['exporter_iso3'], 
+                        row['importer_iso3']] = row['trade']
+        
+        matrices[industry] = matrix_df
+    
+    self.matrices = matrices
+    return matrices
+\end{lstlisting}
+\end{tcolorbox}
+
+La construcción de cada matriz sigue el siguiente proceso matemático:
+
+1. Inicialización:
+   \begin{equation}
+   M^k_{ij} = 0 \quad \forall i,j \in \{1,\ldots,n\}
+   \end{equation}
+
+2. Actualización para cada transacción comercial válida:
+   \begin{equation}
+   M^k_{ij} = \begin{cases}
+   \text{trade}_{ij}^k & \text{si } (i,j) \in \text{valid\_trades} \\
+   0 & \text{en otro caso}
+   \end{cases}
+   \end{equation}
+
+El resultado final es un diccionario $\mathcal{D}$ que mapea cada industria $k$ a su matriz correspondiente:
+
+\begin{equation}
+\mathcal{D} = \{k: M^k \mid k \in \text{industrias}\}
+\end{equation}
+
+Esta representación matricial permite analizar:
+\begin{itemize}
+    \item Flujos comerciales bilaterales por industria
+    \item Patrones de dependencia comercial entre países
+    \item Intensidad de las relaciones comerciales sectoriales
+\end{itemize}
+
+\subsection{Reordenamiento de Matrices}
+
+La función \texttt{mover\_fila\_columna} realiza una operación de reordenamiento matricial, moviendo una fila y columna específicas al final de la matriz. Esta operación se puede expresar matemáticamente como una transformación de permutación bilateral.
+
+Para una matriz $A \in \mathbb{R}^{n \times n}$ y un índice $q$ correspondiente al elemento a mover, la transformación se puede expresar como:
+
+\begin{equation}
+A' = PAP^T
+\end{equation}
+
+Donde:
+\begin{itemize}
+    \item $A'$ es la matriz resultante
+    \item $P$ es la matriz de permutación
+    \item $P^T$ es la transpuesta de la matriz de permutación
+\end{itemize}
+
+La matriz de permutación $P$ se construye como:
+
+\begin{equation}
+P_{ij} = \begin{cases}
+1 & \text{si } j = \sigma(i) \\
+0 & \text{en otro caso}
+\end{cases}
+\end{equation}
+
+Donde $\sigma$ es la permutación que:
+\begin{equation}
+\sigma(i) = \begin{cases}
+i & \text{si } i < q \\
+i+1 & \text{si } q \leq i < n \\
+q & \text{si } i = n
+\end{cases}
+\end{equation}
+
+\begin{tcolorbox}[colback=codebackground,title=Implementación del Método]
+\begin{lstlisting}
+@staticmethod
+def mover_fila_columna(df: pd.DataFrame, nombre: str) -> pd.DataFrame:
+    # Comprobar si el nombre existe en filas y columnas
+    if nombre not in df.index or nombre not in df.columns:
+        raise ValueError(f"'{nombre}' debe estar presente en filas y columnas")
+    
+    # Crear copia para no modificar el DataFrame original        
+    df = df.copy()
+    
+    # Crear lista nueva de columnas
+    cols = [col for col in df.columns if col != nombre] + [nombre]
+    
+    # Crear lista nueva de filas
+    rows = [idx for idx in df.index if idx != nombre] + [nombre]
+    
+    # Reordenar el DataFrame
+    return df.reindex(columns=cols, index=rows)
+\end{lstlisting}
+\end{tcolorbox}
+
+Por ejemplo, para una matriz $3 \times 3$ moviendo el elemento 1 al final, la transformación sería:
+
+\begin{equation}
+\begin{pmatrix}
+a_{11} & a_{12} & a_{13} \\
+a_{21} & a_{22} & a_{23} \\
+a_{31} & a_{32} & a_{33}
+\end{pmatrix} \xrightarrow{\text{reordenar}}
+\begin{pmatrix}
+a_{22} & a_{23} & a_{21} \\
+a_{32} & a_{33} & a_{31} \\
+a_{12} & a_{13} & a_{11}
+\end{pmatrix}
+\end{equation}
+
+Esta transformación preserva las siguientes propiedades:
+\begin{itemize}
+    \item Dimensionalidad de la matriz
+    \item Valores de todos los elementos
+    \item Relaciones entre elementos no movidos
+\end{itemize}
+
+La implementación en pandas utiliza \texttt{reindex} para realizar esta transformación de manera eficiente, evitando la construcción explícita de la matriz de permutación.
+
+
+\subsection{Cálculo de Vectores de Amenaza Económica}
+
+La función \texttt{calcular\_vectores\_ae} calcula los vectores de amenaza económica para un país específico. Este proceso implica la normalización de las matrices de comercio y el cálculo de medidas de dependencia relativa.
+
+\subsubsection{Proceso Matemático}
+
+Para cada industria $k$, dado un país $p$, el proceso sigue los siguientes pasos:
+
+1. Normalización de la matriz de comercio:
+\begin{equation}
+\tilde{M}^k_{ij} = \frac{M^k_{ij}}{\sum_{l=1}^n M^k_{lj}}
+\end{equation}
+
+Donde:
+\begin{itemize}
+    \item $\tilde{M}^k_{ij}$ es el elemento normalizado
+    \item $M^k_{ij}$ es el valor original del comercio
+    \item El denominador representa el total de importaciones del país $j$ en la industria $k$ así como la producción del país en esa industria.
+\end{itemize}
+
+2. Tratamiento de casos especiales:
+\begin{equation}
+\tilde{M}^k_{ij} = \begin{cases}
+0 & \text{si } i = j \text{ (diagonal)} \\
+0 & \text{si } \sum_{l=1}^n M^k_{lj} = 0 \\
+\frac{M^k_{ij}}{\sum_{l=1}^n M^k_{lj}} & \text{en otro caso}
+\end{cases}
+\end{equation}
+
+3. Vector de amenaza económica:
+\begin{equation}
+ae^k_p = [\tilde{M}^k_{p1}, \tilde{M}^k_{p2}, ..., \tilde{M}^k_{p(n-1)}]
+\end{equation}
+
+Donde $ae^k_p$ es el vector de amenaza económica del país $p$ en la industria $k$, excluyendo la dependencia del país sobre sí mismo.
+
+\begin{tcolorbox}[colback=codebackground,title=Implementación del Método]
+\begin{lstlisting}
+def calcular_vectores_ae(self, pais: str) -> Tuple[Dict, Dict]:
+    if not self.matrices:
+        raise ValueError("Debe llamar a crear_matriz_comercio primero")
+    if pais not in self.codigos_paises:
+        raise ValueError(f"País '{pais}' no encontrado en los códigos de países")
+        
+    vectores_ae = {}
+    matrices_normalizadas = {}
+    
+    for industry, matrix in self.matrices.items():
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            
+            # Normalización por columnas
+            column_sum = matrix.sum(axis=0)
+            column_sum = column_sum.replace(0, np.nan)
+            normalized_matrix = matrix.div(column_sum, axis=1)
+            normalized_matrix = normalized_matrix.fillna(0)
+            
+            # Reordenamiento
+            normalized_matrix = self.mover_fila_columna(normalized_matrix, pais)
+            
+            # Eliminación de autoabastecimiento
+            np.fill_diagonal(normalized_matrix.values, 0)
+            
+            matrices_normalizadas[industry] = normalized_matrix
+            vectores_ae[industry] = normalized_matrix.iloc[-1][:-1]
+    
+    return vectores_ae, matrices_normalizadas
+\end{lstlisting}
+\end{tcolorbox}
+
+\subsubsection{Propiedades Matemáticas}
+
+Los vectores de amenaza económica tienen las siguientes propiedades:
+
+1. Normalización:
+\begin{equation}
+0 \leq ae^k_{pi} \leq 1 \quad \forall i
+\end{equation}
+
+2. Suma por columna (después de la normalización):
+\begin{equation}
+\sum_{i=1}^n \tilde{M}^k_{ij} \leq 1 \quad \forall j
+\end{equation}
+
+3. Interpretación: Cada elemento $ae^k_{pi}$ representa la proporción de importaciones que el país $i$ recibe del país $p$ en la industria $k$, indicando el nivel de dependencia de $i$ respecto a $p$.
+
+\subsubsection{Implicaciones para el Análisis}
+Los vectores resultantes permiten:
+\begin{itemize}
+    \item Identificar dependencias comerciales asimétricas
+    \item Evaluar la vulnerabilidad de cada país frente al país analizado
+    \item Comparar la influencia relativa en diferentes industrias
+    \item Detectar patrones de dependencia sectorial
+\end{itemize}
+\subsection{Cálculo de Dependencia Total mediante Matrices de Leontief}
+
+Esta sección describe el cálculo de dependencias totales (directas e indirectas) utilizando el método de Leontief. Este enfoque permite capturar tanto los efectos directos como los efectos en cadena de las relaciones comerciales.
+
+\subsubsection{Fundamento Teórico}
+
+Para cada industria $k$, la dependencia total se calcula mediante el siguiente proceso:
+
+1. Matriz de dependencia directa $O^k$:
+\begin{equation}
+O^k = \{\tilde{M}^k_{ij}\}_{i,j \neq p}
+\end{equation}
+donde $p$ es el país analizado y $\tilde{M}^k_{ij}$ son los elementos de la matriz normalizada.
+
+2. Matriz de Leontief $L^k$:
+\begin{equation}
+L^k = (I - O^k)^{-1}
+\end{equation}
+donde $I$ es la matriz identidad de dimensión apropiada.
+
+3. Vector de dependencia total $d^k$:
+\begin{equation}
+d^k = ae^k L^k
+\end{equation}
+donde $ae^k$ es el vector de amenaza económica directa.
+
+\subsubsection{Proceso Matemático Detallado}
+
+1. Construcción de la matriz $(I - O^k)$:
+\begin{equation}
+(I - O^k)_{ij} = \begin{cases}
+1 - O^k_{ij} & \text{si } i = j \\
+-O^k_{ij} & \text{si } i \neq j
+\end{cases}
+\end{equation}
+
+2. La matriz inversa de Leontief se puede expresar como una serie infinita:
+\begin{equation}
+L^k = (I - O^k)^{-1} = I + O^k + (O^k)^2 + (O^k)^3 + \cdots
+\end{equation}
+
+3. Cada término de la serie representa:
+\begin{itemize}
+    \item $O^k$: efectos directos
+    \item $(O^k)^2$: efectos de segundo orden
+    \item $(O^k)^3$: efectos de tercer orden
+    \item etc.
+\end{itemize}
+
+\begin{tcolorbox}[colback=codebackground,title=Implementación del Método]
+\begin{lstlisting}
+def calcular_dependencia_total(self, pais: str) -> tuple[dict, pd.DataFrame]:
+    # Obtener vectores de dependencia directa
+    vectores_ae, matrices_normalizadas = self.calcular_vectores_ae(pais)
+    
+    # Crear matrices O (sin el país analizado)
+    matrices_O = {}
+    for industry, matrix in matrices_normalizadas.items():
+        if matrix is not None and not matrix.empty:
+            if matrix.shape[0] > 1 and matrix.shape[1] > 1:
+                matrices_O[industry] = matrix.iloc[:-1, :-1]
+    
+    # Calcular matrices inversas de Leontief
+    matrices_inversas = {}
+    for industry, matrix in matrices_O.items():
+        matrix_values = matrix.fillna(0).values
+        try:
+            inverse = inv(np.eye(matrix_values.shape[0]) - matrix_values)
+            matrices_inversas[industry] = inverse
+        except np.linalg.LinAlgError:
+            warnings.warn(f"No se pudo calcular la inversa para {industry}")
+            continue
+    
+    # Calcular dependencia total
+    dependencia = {}
+    for industry, inverse_matrix in matrices_inversas.items():
+        ae = vectores_ae[industry]
+        resultado = np.dot(ae.fillna(0), inverse_matrix)
+        dependencia[industry] = resultado
+\end{lstlisting}
+\end{tcolorbox}
+
+\subsubsection{Propiedades Matemáticas}
+
+La matriz inversa de Leontief tiene las siguientes propiedades:
+
+1. Existencia:
+\begin{equation}
+(I - O^k)^{-1} \text{ existe si } \rho(O^k) < 1
+\end{equation}
+donde $\rho(O^k)$ es el radio espectral de $O^k$.
+
+2. Interpretación de elementos:
+\begin{equation}
+L^k_{ij} = \text{efecto total del país } j \text{ sobre el país } i
+\end{equation}
+
+3. Propiedades de los elementos:
+\begin{equation}
+L^k_{ij} \geq 0 \quad \forall i,j
+\end{equation}
+\begin{equation}
+L^k_{ij} \geq \delta_{ij} \quad \text{donde } \delta_{ij} \text{ es la delta de Kronecker}
+\end{equation}
+
+\subsubsection{Interpretación de Resultados}
+
+El vector de dependencia total $d^k$ para cada industria $k$ captura:
+\begin{itemize}
+    \item Dependencias directas a través de comercio bilateral
+    \item Dependencias indirectas a través de intermediarios
+    \item Efectos de retroalimentación en las cadenas de suministro
+\end{itemize}
+
+La magnitud de cada elemento $d^k_i$ indica la vulnerabilidad total del país $i$ respecto al país analizado en la industria $k$, considerando todos los canales posibles de dependencia.
+
+\subsection{Estadísticas Resumen de Dependencias}
+
+La función \texttt{get\_summary\_stats} calcula estadísticas descriptivas básicas para las dependencias calculadas. Para cada país $j$, dada una matriz de dependencias $D$, se calculan las siguientes medidas estadísticas:
+
+\subsubsection{Definiciones Matemáticas}
+
+1. Media aritmética:
+\begin{equation}
+\bar{D}_j = \frac{1}{n} \sum_{i=1}^n D_{ij}
+\end{equation}
+
+2. Mediana:
+\begin{equation}
+\text{Med}(D_j) = \begin{cases}
+D_{((n+1)/2)j} & \text{si } n \text{ es impar} \\
+\frac{D_{(n/2)j} + D_{((n/2)+1)j}}{2} & \text{si } n \text{ es par}
+\end{cases}
+\end{equation}
+
+3. Desviación estándar:
+\begin{equation}
+\sigma_j = \sqrt{\frac{1}{n-1} \sum_{i=1}^n (D_{ij} - \bar{D}_j)^2}
+\end{equation}
+
+4. Máximo:
+\begin{equation}
+\text{Max}_j = \max_{i} \{D_{ij}\}
+\end{equation}
+
+5. Mínimo:
+\begin{equation}
+\text{Min}_j = \min_{i} \{D_{ij}\}
+\end{equation}
+
+Donde:
+\begin{itemize}
+    \item $n$ es el número de industrias
+    \item $D_{ij}$ es la dependencia de la industria $i$ respecto al país $j$
+\end{itemize}
+
+\begin{tcolorbox}[colback=codebackground,title=Implementación del Método]
+\begin{lstlisting}
+def get_summary_stats(self, dependencia: pd.DataFrame) -> pd.DataFrame:
+    return pd.DataFrame({
+        'Media': dependencia.mean(),
+        'Mediana': dependencia.median(),
+        'Desv. Est.': dependencia.std(),
+        'Máximo': dependencia.max(),
+        'Mínimo': dependencia.min()
+    })
+\end{lstlisting}
+\end{tcolorbox}
+
+\subsubsection{Interpretación de las Estadísticas}
+
+Cada estadística proporciona información específica sobre la distribución de las dependencias:
+
+\begin{itemize}
+    \item \textbf{Media}: Nivel promedio de dependencia, indica la tendencia central de la dependencia económica.
+    
+    \item \textbf{Mediana}: Valor central de dependencia, menos sensible a valores extremos que la media.
+    
+    \item \textbf{Desviación Estándar}: Dispersión de las dependencias, indica la variabilidad en las relaciones económicas.
+    
+    \item \textbf{Máximo}: Mayor nivel de dependencia observado, identifica el sector más vulnerable.
+    
+    \item \textbf{Mínimo}: Menor nivel de dependencia observado, identifica el sector más resiliente.
+\end{itemize}
+
+\subsubsection{Propiedades Estadísticas}
+
+Las estadísticas calculadas cumplen las siguientes propiedades:
+
+1. Rango de valores:
+\begin{equation}
+0 \leq \text{Min}_j \leq \text{Med}(D_j) \leq \text{Max}_j \leq 1
+\end{equation}
+
+2. Relación entre medidas:
+\begin{equation}
+\text{Min}_j \leq \bar{D}_j \leq \text{Max}_j
+\end{equation}
+
+3. Desviación estándar:
+\begin{equation}
+0 \leq \sigma_j \leq \frac{\text{Max}_j - \text{Min}_j}{2}
+\end{equation}
+
+Estas estadísticas permiten:
+\begin{itemize}
+    \item Comparar niveles de dependencia entre diferentes países
+    \item Identificar patrones de concentración o dispersión en las dependencias
+    \item Detectar valores atípicos que pueden requerir atención especial
+\end{itemize}
+
+\subsection{Análisis Global de Dependencias Comerciales}
+
+La función \texttt{calcular\_dependencias\_todos\_paises} extiende el análisis individual a todos los países del conjunto de datos, generando una visión completa de las interdependencias globales.
+
+\subsubsection{Proceso Matemático Global}
+
+Para el conjunto completo de países $P = \{p_1, ..., p_n\}$ y el conjunto de industrias $K$, el proceso realiza los siguientes cálculos:
+
+1. Para cada país $p \in P$, se construye una matriz de dependencia $D^p$:
+\begin{equation}
+D^p = \{d^k_p\}_{k \in K}
+\end{equation}
+
+donde $d^k_p$ es el vector de dependencia total para el país $p$ en la industria $k$.
+
+2. El resultado final es un mapeo:
+\begin{equation}
+\mathcal{M}: P \rightarrow \mathbb{R}^{|K| \times (|P|-1)}
+\end{equation}
+
+Donde para cada país $p$:
+\begin{equation}
+\mathcal{M}(p) = D^p = \begin{pmatrix}
+d^{k_1}_{p1} & d^{k_1}_{p2} & \cdots & d^{k_1}_{p(n-1)} \\
+d^{k_2}_{p1} & d^{k_2}_{p2} & \cdots & d^{k_2}_{p(n-1)} \\
+\vdots & \vdots & \ddots & \vdots \\
+d^{k_m}_{p1} & d^{k_m}_{p2} & \cdots & d^{k_m}_{p(n-1)}
+\end{pmatrix}
+\end{equation}
+
+\begin{tcolorbox}[colback=codebackground,title=Implementación del Método]
+\begin{lstlisting}
+def calcular_dependencias_todos_paises(self, datos_comercio: pd.DataFrame) 
+                                     -> Dict[str, pd.DataFrame]:
+    # Validar columnas necesarias
+    required_columns = {'exporter_iso3', 'importer_iso3', 
+                       'industry_descr', 'trade'}
+    if not required_columns.issubset(datos_comercio.columns):
+        raise ValueError(f"Los datos deben contener las columnas: {required_columns}")
+    
+    # Agrupar por industria
+    grouped_data = datos_comercio.groupby('industry_descr')
+    
+    # Crear matrices de comercio iniciales
+    self.crear_matriz_comercio(grouped_data)
+    
+    # Procesar cada país
+    for pais in tqdm(self.codigos_paises):
+        try:
+            dependencia = self.calcular_dependencia_total(pais)
+            self.resultados_dependencia[pais] = dependencia
+        except Exception as e:
+            print(f"Error procesando país {pais}: {str(e)}")
+    
+    return self.resultados_dependencia
+\end{lstlisting}
+\end{tcolorbox}
+
+\subsubsection{Estructura del Análisis Global}
+
+El proceso sigue una jerarquía de cálculos:
+
+1. Nivel de Datos:
+\begin{equation}
+\text{Datos Comerciales} \xrightarrow{\text{groupby}} \{\text{Grupos por Industria}\}_k
+\end{equation}
+
+2. Nivel de Matrices:
+\begin{equation}
+\{\text{Grupos por Industria}\}_k \xrightarrow{\text{crear\_matriz\_comercio}} \{M^k\}_{k \in K}
+\end{equation}
+
+3. Nivel de Dependencias:
+Para cada país $p$:
+\begin{equation}
+\{M^k\}_{k \in K} \xrightarrow{\text{calcular\_dependencia\_total}} D^p
+\end{equation}
+
+\subsubsection{Propiedades del Análisis Global}
+
+1. Completitud:
+\begin{equation}
+|\mathcal{M}| = |P| \text{ matrices de dimensión } |K| \times (|P|-1)
+\end{equation}
+
+2. Simetría de Información:
+\begin{equation}
+\forall p,q \in P: \text{dim}(\mathcal{M}(p)) = \text{dim}(\mathcal{M}(q))
+\end{equation}
+
+3. Conservación de Estructura:
+\begin{equation}
+\forall p \in P: \mathcal{M}(p) \text{ mantiene consistencia con } \{M^k\}_{k \in K}
+\end{equation}
+
+\subsubsection{Implicaciones para el Análisis Económico}
+
+El análisis global permite:
+
+\begin{itemize}
+    \item Comparar patrones de dependencia entre países
+    \item Identificar clusters de dependencia regional
+    \item Evaluar vulnerabilidades sistémicas
+    \item Analizar la reciprocidad en las relaciones comerciales
+    \item Detectar asimetrías estructurales en el comercio internacional
+\end{itemize}
+
+
+\subsection{Análisis Estadístico de Dependencias Comerciales}
+
+La función \texttt{analizar\_resultados} proporciona tres niveles de análisis estadístico para evaluar los patrones de dependencia comercial.
+
+\subsubsection{Estadísticas Descriptivas por País}
+
+Para cada país $p$ y cada industria $k$, se calculan las siguientes medidas estadísticas:
+
+1. Media de dependencia:
+\begin{equation}
+\bar{D}_p = \frac{1}{n} \sum_{i=1}^n D_{pi}
+\end{equation}
+
+2. Mediana de dependencia:
+\begin{equation}
+\text{Med}(D_p) = \begin{cases}
+D_{p((n+1)/2)} & \text{si } n \text{ es impar} \\
+\frac{D_{p(n/2)} + D_{p((n/2)+1)}}{2} & \text{si } n \text{ es par}
+\end{cases}
+\end{equation}
+
+3. Desviación estándar:
+\begin{equation}
+\sigma_p = \sqrt{\frac{1}{n-1} \sum_{i=1}^n (D_{pi} - \bar{D}_p)^2}
+\end{equation}
+
+\subsubsection{Rankings de Dependencia}
+
+Para cada país $p$, se construye un ranking $R_p$ basado en la media de dependencias:
+
+\begin{equation}
+R_p(k) = \text{rank}\left(\frac{1}{n}\sum_{i=1}^n D_{pik}\right)
+\end{equation}
+
+donde $\text{rank}(x)$ devuelve la posición de $x$ en orden descendente.
+
+\subsubsection{Índice de Concentración de Herfindahl}
+
+Para cada país $p$ y cada industria $k$, el índice de Herfindahl se calcula como:
+
+\begin{equation}
+H_{pk} = \sum_{i=1}^n (D_{pik})^2
+\end{equation}
+
+Propiedades del índice:
+\begin{itemize}
+    \item $\frac{1}{n} \leq H_{pk} \leq 1$
+    \item $H_{pk} = \frac{1}{n}$ indica dependencia perfectamente distribuida
+    \item $H_{pk} = 1$ indica dependencia completamente concentrada
+\end{itemize}
+
+\begin{tcolorbox}[colback=codebackground,title=Implementación del Método]
+\begin{lstlisting}
+def analizar_resultados(self) -> Dict[str, Dict[str, pd.DataFrame]]:
+    analisis = {}
+    
+    # 1. Estadísticas básicas por país
+    stats_por_pais = {}
+    for pais, depend in self.resultados_dependencia.items():
+        stats = pd.DataFrame({
+            'Media': depend.mean(),
+            'Mediana': depend.median(),
+            'Max': depend.max(),
+            'Min': depend.min(),
+            'Std': depend.std()
+        })
+        stats_por_pais[pais] = stats
+    analisis['estadisticas_por_pais'] = stats_por_pais
+    
+    # 2. Rankings de dependencia
+    rankings = {}
+    for pais, depend in self.resultados_dependencia.items():
+        ranking = depend.mean(axis=1).sort_values(ascending=False)
+        rankings[pais] = ranking
+    analisis['rankings'] = rankings
+    
+    # 3. Índice de Herfindahl
+    concentracion = {}
+    for pais, depend in self.resultados_dependencia.items():
+        herfindahl = (depend ** 2).sum(axis=1)
+        concentracion[pais] = herfindahl
+    analisis['concentracion'] = concentracion
+    
+    return analisis
+\end{lstlisting}
+\end{tcolorbox}
+
+\subsubsection{Interpretación de los Resultados}
+
+1. Estadísticas Descriptivas:
+\begin{itemize}
+    \item Media: Nivel general de dependencia
+    \item Mediana: Valor central robusto a valores extremos
+    \item Desviación estándar: Variabilidad en las dependencias
+\end{itemize}
+
+2. Rankings:
+\begin{itemize}
+    \item Identifican industrias críticas por país
+    \item Permiten comparación entre sectores
+    \item Facilitan la priorización de políticas comerciales
+\end{itemize}
+
+3. Índice de Herfindahl:
+\begin{itemize}
+    \item Mide concentración de dependencias
+    \item Identifica vulnerabilidades estructurales
+    \item Evalúa la diversificación de dependencias
+\end{itemize}
+
+\subsubsection{Matrices de Análisis Resultantes}
+
+El análisis produce tres matrices principales:
+
+1. Matriz de Estadísticas:
+\begin{equation}
+S = \begin{pmatrix}
+\bar{D}_1 & \text{Med}(D_1) & \sigma_1 & \max(D_1) & \min(D_1) \\
+\vdots & \vdots & \vdots & \vdots & \vdots \\
+\bar{D}_p & \text{Med}(D_p) & \sigma_p & \max(D_p) & \min(D_p)
+\end{pmatrix}
+\end{equation}
+
+2. Matriz de Rankings:
+\begin{equation}
+R = \begin{pmatrix}
+R_1(k_1) & R_1(k_2) & \cdots & R_1(k_m) \\
+\vdots & \vdots & \ddots & \vdots \\
+R_p(k_1) & R_p(k_2) & \cdots & R_p(k_m)
+\end{pmatrix}
+\end{equation}
+
+3. Matriz de Concentración:
+\begin{equation}
+H = \begin{pmatrix}
+H_{11} & H_{12} & \cdots & H_{1m} \\
+\vdots & \vdots & \ddots & \vdots \\
+H_{p1} & H_{p2} & \cdots & H_{pm}
+\end{pmatrix}
+\end{equation}
+
+\subsection{Análisis Individual por País}
+
+La función \texttt{obtener\_resumen\_pais} proporciona un análisis detallado de las dependencias comerciales para un país específico, enfocándose en tres aspectos clave.
+
+\subsubsection{Métricas de Análisis}
+
+Para un país específico $p$, se calculan las siguientes métricas:
+
+1. Ranking de Industrias:
+\begin{equation}
+T_{10}(p) = \text{top}_{10}\left\{\frac{1}{n}\sum_{j=1}^n D_{pij}\right\}_{i \in K}
+\end{equation}
+
+donde $D_{pij}$ es la dependencia de la industria $i$ respecto al país $j$, y $\text{top}_{10}$ selecciona los 10 valores más altos.
+
+2. Estadísticas por Sector:
+Para cada sector $j$:
+\begin{align}
+\mu_j &= \frac{1}{m}\sum_{i=1}^m D_{pij} \quad \text{(Media)} \\
+\text{Med}_j &= \text{mediana}\{D_{pij}\}_{i=1}^m \quad \text{(Mediana)} \\
+\sigma_j &= \sqrt{\frac{1}{m-1}\sum_{i=1}^m (D_{pij} - \mu_j)^2} \quad \text{(Desv. Est.)} \\
+\text{Max}_j &= \max_i\{D_{pij}\} \quad \text{(Máximo)} \\
+\text{Min}_j &= \min_i\{D_{pij}\} \quad \text{(Mínimo)}
+\end{align}
+
+3. Índice de Concentración:
+Para cada industria $i$:
+\begin{equation}
+H_{pi} = \sum_{j=1}^n (D_{pij})^2
+\end{equation}
+
+\begin{tcolorbox}[colback=codebackground,title=Implementación del Método]
+\begin{lstlisting}
+def obtener_resumen_pais(self, pais: str) -> Dict[str, pd.DataFrame]:
+    if pais not in self.resultados_dependencia:
+        raise ValueError(f"No hay datos disponibles para {pais}")
+        
+    resumen = {}
+    depend = self.resultados_dependencia[pais]
+    
+    # 1. Top 10 industrias más dependientes
+    top_10 = depend.mean(axis=1).sort_values(ascending=False).head(10)
+    resumen['top_10_industrias'] = top_10
+    
+    # 2. Estadísticas generales
+    stats = pd.DataFrame({
+        'Media': depend.mean(),
+        'Mediana': depend.median(),
+        'Max': depend.max(),
+        'Min': depend.min(),
+        'Std': depend.std()
+    })
+    resumen['estadisticas'] = stats
+    
+    # 3. Concentración por industria
+    concentracion = (depend ** 2).sum(axis=1)
+    resumen['concentracion'] = concentracion
+    
+    return resumen
+\end{lstlisting}
+\end{tcolorbox}
+
+\subsubsection{Propiedades de las Métricas}
+
+1. Top 10 Industrias:
+\begin{itemize}
+    \item $|T_{10}(p)| = 10$ (cardinalidad fija)
+    \item $\forall x,y \in T_{10}(p): x \geq y$ si $x$ aparece antes que $y$
+\end{itemize}
+
+2. Estadísticas Sectoriales:
+\begin{itemize}
+    \item $\text{Min}_j \leq \text{Med}_j \leq \text{Max}_j$
+    \item $0 \leq \mu_j \leq 1$
+    \item $\sigma_j \geq 0$
+\end{itemize}
+
+3. Concentración:
+\begin{itemize}
+    \item $\frac{1}{n} \leq H_{pi} \leq 1$
+    \item $H_{pi} = 1$ indica dependencia total
+    \item $H_{pi} = \frac{1}{n}$ indica dependencia uniforme
+\end{itemize}
+
+\subsubsection{Interpretación Económica}
+
+1. Top 10 Industrias:
+\begin{itemize}
+    \item Identifica sectores críticos que requieren atención prioritaria
+    \item Revela vulnerabilidades estratégicas
+    \item Guía la formulación de políticas comerciales
+\end{itemize}
+
+2. Estadísticas:
+\begin{itemize}
+    \item Media: Nivel general de dependencia sectorial
+    \item Mediana: Valor típico de dependencia
+    \item Desviación estándar: Variabilidad en las dependencias
+    \item Máximo/Mínimo: Rango de vulnerabilidades
+\end{itemize}
+
+3. Concentración:
+\begin{itemize}
+    \item Mide la diversificación de dependencias
+    \item Identifica riesgos de monopolio
+    \item Evalúa la resiliencia sectorial
+\end{itemize}
+
+\subsubsection{Matriz de Análisis}
+
+El análisis se puede representar en una matriz compuesta:
+
+\begin{equation}
+A_p = \begin{pmatrix}
+T_{10}(p) \\
+\hline
+\begin{matrix}
+\mu_1 & \text{Med}_1 & \sigma_1 & \text{Max}_1 & \text{Min}_1 \\
+\vdots & \vdots & \vdots & \vdots & \vdots \\
+\mu_n & \text{Med}_n & \sigma_n & \text{Max}_n & \text{Min}_n
+\end{matrix} \\
+\hline
+\begin{matrix}
+H_{p1} & H_{p2} & \cdots & H_{pn}
+\end{matrix}
+\end{pmatrix}
+\end{equation}
+
+
+Posibles Mejoras Futuras:
+
+
+Optimización de memoria en el procesamiento de grandes datasets
+Paralelización de cálculos para múltiples países
+Inclusión de visualizaciones automáticas
+Análisis temporal (actualmente solo usa datos de 2019)
+\end{document}

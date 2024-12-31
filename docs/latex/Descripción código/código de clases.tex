@@ -1,0 +1,320 @@
+
+\documentclass[authoryear]{elsarticle}
+\makeatletter 
+\def\ps@pprintTitle{%
+ \let\@oddhead\@empty
+ \let\@evenhead\@empty
+ \let\@evenfoot\@oddfoot} % Supprimer le bas de page ELSEVIER
+\makeatother
+\usepackage[utf8]{inputenc} % En unicode
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage[babel=true]{csquotes} % permet de faire \enquote{a} (« a »)
+\usepackage[fleqn]{amsmath} % pour certains signes mathématiques
+\usepackage{amsthm} % Pour \begin{gather}
+\usepackage{booktabs} % pour \toprule (un style de tableau)
+\usepackage{multirow} % Pour colonnes multiples des tableaux
+\usepackage{amssymb} % Pour \leqslant (<=, >=)
+\usepackage{float}
+\usepackage{hyperref} % DOIT ETRE EN DERNIER
+\usepackage[english]{cleveref} % permet de faire \cref au lieu de \ref (DOIT ETRE EN DERNIER)
+\usepackage{tikz}
+\usepackage{array, longtable, tabularx}% added long table
+\usepackage{adjustbox}
+\begin{document}
+
+\begin{frontmatter}
+
+\title{Un indicador de seguridad económica para la UE}
+
+\author[1]{Manuel Hidalgo-Pérez\corref{cor1}%
+ \fnref{fn1}}
+\ead{mhidper@upo.es} 
+
+\author[2]{Jorge Díaz-Lanchas\fnref{fn2}}
+\ead{email de jorge}
+
+\author[3]{Miguel Otero\fnref{fn3}}
+\ead{email de Miguel}
+
+
+\cortext[cor1]{Corresponding author}
+
+\affiliation[1]{organization={Universidad Pablo de Olavide},
+                addressline={Ctra Utrera s/n},
+                postcode={41013},
+                city={Sevilla},
+                country={España}}
+
+\affiliation[2]{organization={Afiliación Jorge},
+                addressline={C. de Mateo Inurria, 25, 27},
+                postcode={28036},
+                city={Madrid},
+                country={España}}
+
+\affiliation[3]{organization={Afiliación Miguel},
+                addressline={C. de Mateo Inurria, 25, 27},
+                postcode={28036},
+                city={Madrid},
+                country={España}}
+
+
+\begin{abstract}
+Musho Beti
+\end{abstract}
+
+\begin{keyword}
+XXXX \sep XXXX \sep XXX \sep XXX \\
+\textbf{JEL Codes:} XX, XX, XX
+\end{keyword}
+
+\end{frontmatter}
+
+\section{Introducción al Algoritmo de Dependencia Comercial}
+
+El presente documento detalla la implementación algorítmica del cálculo de dependencias comerciales desarrollado en las secciones anteriores. La herramienta central de esta implementación es la clase \texttt{AnalisisDependenciaComercial}, desarrollada en Python, que automatiza el complejo proceso de cálculo de dependencias directas e indirectas entre países. Esta implementación representa un avance significativo en la capacidad de análisis de las relaciones comerciales internacionales, permitiendo una evaluación exhaustiva de las vulnerabilidades y dependencias en las cadenas de suministro globales.
+
+\subsection{Propósito y Alcance}
+
+La creación de esta herramienta computacional responde a la creciente necesidad de comprender y cuantificar las complejas relaciones de dependencia en el comercio internacional. El algoritmo desarrollado aborda tres aspectos fundamentales del análisis comercial: la automatización de cálculos complejos, la identificación de efectos indirectos a través de países intermediarios, y la generación de análisis integrales que combinan diferentes métricas de dependencia y concentración.
+
+La automatización del cálculo representa un avance en la capacidad de procesamiento de datos comerciales. El algoritmo permite analizar simultáneamente múltiples países e industrias, superando las limitaciones de los análisis manuales o parciales. Esta capacidad es especialmente relevante en el contexto actual, donde las cadenas de valor globales crean intrincadas redes de dependencias que requieren un análisis sistemático y exhaustivo.
+
+La captura de efectos indirectos constituye una innovación metodológica fundamental. El algoritmo implementa una sofisticada metodología matricial que permite identificar y cuantificar no solo las dependencias directas entre países, sino también aquellas que se transmiten a través de terceros países. Esta capacidad resulta crucial para comprender la verdadera naturaleza y alcance de las vulnerabilidades en las cadenas de suministro globales.
+
+\subsection{Características y Arquitectura del Sistema}
+
+La implementación se ha desarrollado siguiendo principios de diseño que garantizan su eficacia y adaptabilidad. La modularidad del sistema, conseguida mediante una  división en funciones especializadas, permite aislar y optimizar cada aspecto específico del cálculo. Esta arquitectura no solo facilita el mantenimiento y la depuración del código, sino que también permite la extensión y mejora continua de las funcionalidades.
+
+La escalabilidad del sistema constituye otro pilar fundamental del diseño. El algoritmo puede procesar eficientemente datos de comercio internacional en diferentes niveles de agregación, desde análisis detallados por producto hasta evaluaciones sectoriales más amplias. Esta flexibilidad permite adaptar el análisis a diferentes necesidades y contextos de investigación.
+
+La robustez del sistema se garantiza mediante un exhaustivo sistema de validaciones y manejo de errores en cada etapa del proceso. Cada función incorpora verificaciones de consistencia de datos y manejo de casos especiales, asegurando la fiabilidad de los resultados incluso en presencia de datos incompletos o anomalías en los flujos comerciales.
+
+\subsection{Proceso de Análisis y Aplicaciones}
+
+El algoritmo implementa un proceso sistemático de análisis que transforma datos comerciales brutos en indicadores significativos de dependencia y vulnerabilidad. Este proceso comienza con la preparación y validación de los datos comerciales, continúa con la construcción y normalización de matrices de dependencia, y culmina con el cálculo de índices de dependencia y concentración.
+
+La aplicación práctica de esta herramienta abarca múltiples ámbitos del análisis económico y la política comercial. En el campo del análisis de políticas comerciales, el algoritmo proporciona información crucial para la toma de decisiones estratégicas, permitiendo identificar vulnerabilidades críticas y evaluar el impacto potencial de cambios en las relaciones comerciales. En el ámbito de la gestión de riesgos, la herramienta facilita la evaluación sistemática de las cadenas de suministro, identificando puntos de dependencia excesiva y oportunidades de diversificación.
+
+Los estudios de vulnerabilidad económica se benefician particularmente de la capacidad del algoritmo para detectar dependencias indirectas que podrían pasar desapercibidas en análisis más tradicionales. Esta característica resulta especialmente valiosa en el contexto actual, donde la complejidad de las cadenas de valor globales hace que las vulnerabilidades no siempre sean evidentes a primera vista.
+
+\section{Implementación del Algoritmo}
+
+La implementación práctica del análisis de dependencias comerciales se materializa a través de una serie de métodos interconectados dentro de la clase \texttt{AnalisisDependenciaComercial}. Cada método aborda un aspecto específico del análisis, formando en conjunto un sistema coherente para la evaluación de dependencias comerciales. A continuación, se describe en detalle cada componente del sistema y su fundamentación matemática.
+
+\subsection{Construcción de las Matrices de Comercio Base}
+
+El punto de partida del análisis es la construcción de matrices que representan los flujos comerciales entre países. Esta tarea fundamental se implementa mediante el método \texttt{crear\_matriz\_comercio}, que transforma los datos comerciales brutos en estructuras matriciales analizables. La función procesa datos agrupados por industria para generar matrices que capturan tanto los flujos comerciales internacionales como la producción doméstica.
+
+Para cada industria, se construye una matriz $X$ que representa de manera exhaustiva todas las relaciones comerciales bilaterales. En esta matriz, cada elemento $x_{ij}$ cuantifica el flujo comercial desde el país $j$ hacia el país $i$, mientras que los elementos de la diagonal ($x_{ii}$) representan la producción doméstica de cada país. La estructura matemática de esta matriz se expresa como:
+
+\begin{align*}
+    X =
+    \begin{bmatrix}
+    x_{11} & x_{12} & x_{13} & x_{1E} \\
+    x_{21} & x_{22} & x_{23} & x_{2E} \\
+    x_{31} & x_{32} & x_{33} & x_{3E} \\
+    x_{E1} & x_{E2} & x_{E3} & x_{EE}
+    \end{bmatrix}
+\end{align*}
+
+Esta representación matricial constituye la base sobre la cual se construirá todo el análisis posterior de dependencias.
+
+\subsection{Análisis de Dependencias Directas}
+
+El siguiente paso crucial en el proceso es la cuantificación de las dependencias directas entre países. Este análisis se implementa a través del método \texttt{calcular\_vectores\_ae}, que transforma las matrices de comercio brutas en coeficientes normalizados que representan el grado de dependencia directa entre países.
+
+El proceso de normalización se realiza mediante la aplicación de la siguiente fórmula para cada elemento de la matriz:
+
+\begin{equation}
+a_{ij} = \frac{x_{ij}}{\sum_{j} x_{ij}}
+\end{equation}
+
+Este cálculo genera una nueva matriz $A$ de coeficientes normalizados, donde cada elemento $a_{ij}$ representa la proporción que las importaciones desde el país $j$ representan en el total de disponibilidades del país $i$. La matriz resultante $A$ proporciona una primera aproximación a las relaciones de dependencia, aunque todavía no captura los efectos indirectos que se transmiten a través de países intermediarios.
+
+\subsection{Procesamiento de Efectos Indirectos}
+
+La captación de efectos indirectos requiere un tratamiento más sofisticado que se implementa mediante una serie de transformaciones matriciales. El proceso comienza con la extracción de submatrices específicas que excluyen el país objeto de análisis, tarea realizada por el método \texttt{obtener\_submatrices}. 
+
+Para un conjunto de países $\Omega$ que excluye al país $E$ cuya influencia queremos analizar, se construye una submatriz $A_{\Omega}$ con una estructura particular:
+
+\begin{equation}
+A_{\Omega} = 
+\begin{bmatrix}
+0 & a_{12} & a_{13} \\
+a_{21} & 0 & a_{23} \\
+a_{31} & a_{32} & 0
+\end{bmatrix}
+\end{equation}
+
+La característica distintiva de esta matriz es la presencia de ceros en su diagonal principal, lo que refleja el principio de que un país no puede depender indirectamente de sí mismo a través de otros países.
+
+\subsection{Cálculo de Dependencias Totales}
+
+La cuantificación final de las dependencias totales, implementada en el método \texttt{calcular\_dependencia\_total}, representa la culminación del proceso analítico. Este método integra tanto los efectos directos como los indirectos mediante una sofisticada operación matricial:
+
+\begin{equation}
+\delta = a_E[I - A_{\Omega}]^{-1}
+\end{equation}
+
+Esta fórmula aparentemente simple encapsula una serie infinita de efectos indirectos:
+
+\begin{equation}
+\delta = \delta^1 + \delta^2 + \delta^3 + ... = a_E \left[I + A_{\Omega} + A_{\Omega}^2+ A_{\Omega}^3 \hspace{0.1cm}...\right]
+\end{equation}
+
+Cada término de esta serie representa un nivel adicional de dependencia indirecta, capturando rutas comerciales cada vez más complejas a través de múltiples países intermediarios.
+
+\subsection{Extensiones y Análisis Complementarios}
+
+El sistema incorpora capacidades adicionales para análisis más específicos, como el tratamiento de múltiples países externos simultaneamente. En estos casos, el algoritmo adapta sus cálculos para considerar las interacciones entre diferentes fuentes de dependencia externa:
+
+\begin{equation}
+\delta_1 = a_{E_1} [I - A_{\Omega_1}]^{-1}
+\end{equation}
+\begin{equation}
+\delta_2 = a_{E_2} [I - A_{\Omega_2}]^{-1}
+\end{equation}
+
+Además, el sistema incluye funcionalidades para el análisis de concentración mediante el índice de Herfindahl:
+
+\begin{equation}
+H_j = \sum_{i=1}^{n} s_{ij}^2
+\end{equation}
+
+Este índice complementa el análisis de dependencias proporcionando información sobre la diversificación o concentración de las relaciones comerciales, añadiendo una dimensión adicional crucial para la evaluación de vulnerabilidades económicas.
+
+\section{Aspectos Prácticos de Implementación}
+
+La implementación práctica del algoritmo requiere una consideración cuidadosa de diversos aspectos técnicos y computacionales que garantizan su eficiencia y precisión. La gestión de grandes volúmenes de datos comerciales, la optimización de operaciones matriciales y el manejo de casos especiales son elementos críticos que han sido abordados sistemáticamente en el desarrollo del sistema.
+
+\subsection{Gestión de Datos y Optimización}
+
+El procesamiento eficiente de datos comerciales internacionales presenta desafíos significativos debido a su volumen y complejidad. La implementación incorpora diversas estrategias de optimización para manejar estas demandas. En primer lugar, el sistema utiliza estructuras de datos especializadas para almacenar y manipular las matrices de comercio, aprovechando las capacidades de bibliotecas numéricas como NumPy para operaciones matriciales eficientes.
+
+La gestión de memoria se ha optimizado cuidadosamente para manejar conjuntos de datos de gran escala. El sistema implementa técnicas de procesamiento por lotes cuando es necesario, permitiendo el análisis de matrices de comercio de dimensiones considerables sin comprometer el rendimiento o la estabilidad del sistema.
+
+\subsection{Manejo de Casos Especiales}
+
+Un aspecto crucial de la implementación es el tratamiento robusto de casos especiales y anomalías en los datos. El sistema incorpora múltiples niveles de validación y manejo de errores para abordar situaciones como:
+
+La presencia de valores faltantes en los datos comerciales, que se manejan mediante estrategias de imputación apropiadas cuando es posible, o mediante la exclusión controlada cuando no hay alternativas válidas. Los casos de dependencia circular, que requieren un tratamiento especial para evitar problemas de convergencia en el cálculo de efectos indirectos. La existencia de flujos comerciales extremadamente pequeños o grandes, que podrían afectar la estabilidad numérica de los cálculos matriciales.
+
+\subsection{Interpretación y Visualización de Resultados}
+
+El sistema no solo calcula índices de dependencia y concentración, sino que también proporciona herramientas para la interpretación y visualización de los resultados. Los resultados se presentan en formatos que facilitan su análisis posterior y su integración en procesos de toma de decisiones.
+
+Los índices de dependencia calculados se complementan con métricas de incertidumbre y significancia estadística cuando es apropiado. Esto permite una evaluación más matizada de la robustez de las conclusiones derivadas del análisis. Además, el sistema genera automáticamente visualizaciones que ayudan a identificar patrones y tendencias en las relaciones de dependencia comercial.
+
+\section{Limitaciones y Futuras Extensiones}
+
+\subsection{Limitaciones Actuales}
+
+A pesar de su exhaustividad, el sistema actual presenta algunas limitaciones que es importante reconocer. La principal limitación radica en la dependencia de datos comerciales históricos, que pueden no reflejar completamente las dinámicas comerciales más recientes o emergentes. Además, el modelo actual no incorpora explícitamente factores como barreras no arancelarias, regulaciones comerciales específicas o consideraciones geopolíticas que podrían afectar las relaciones de dependencia.
+
+\subsection{Oportunidades de Extensión}
+
+El diseño modular del sistema facilita su extensión futura para abordar limitaciones actuales y añadir nuevas funcionalidades. Entre las extensiones potenciales más prometedoras se encuentran:
+
+La incorporación de análisis dinámicos que consideren la evolución temporal de las dependencias comerciales, permitiendo la identificación de tendencias y cambios estructurales en las relaciones comerciales. La integración de factores adicionales como costos de transporte, barreras comerciales y consideraciones de riesgo político en el cálculo de dependencias. El desarrollo de capacidades predictivas que permitan evaluar escenarios futuros de dependencia bajo diferentes condiciones comerciales.
+
+\section{Implementación Práctica y Uso del Código}
+
+La utilización práctica del algoritmo se realiza mediante una secuencia simple pero potente de comandos en Python. Esta sección detalla el proceso paso a paso de implementación y proporciona ejemplos concretos de uso.
+
+\subsection{Inicialización y Configuración}
+
+El primer paso consiste en la inicialización de la clase con la lista de países a analizar. Este proceso se realiza mediante una simple línea de código:
+
+\begin{verbatim}
+analisis = AnalisisDependenciaComercial(codigos_paises)
+\end{verbatim}
+
+donde \texttt{codigos\_paises} es una lista de códigos ISO3 de los países que se incluirán en el análisis. Por ejemplo, para un análisis de países europeos, podría incluir códigos como 'ESP', 'FRA', 'DEU', etc.
+
+\subsection{Preparación de Datos}
+
+El siguiente paso crucial es la creación de las matrices de comercio iniciales. Este proceso se realiza mediante:
+
+\begin{verbatim}
+analisis.crear_matriz_comercio(grouped_data)
+\end{verbatim}
+
+El parámetro \texttt{grouped\_data} debe ser un DataFrame de pandas agrupado por industria que contenga, como mínimo, las siguientes columnas:
+\begin{itemize}
+    \item \texttt{exporter\_iso3}: Código ISO3 del país exportador
+    \item \texttt{importer\_iso3}: Código ISO3 del país importador
+    \item \texttt{trade}: Valor del flujo comercial
+    \item \texttt{industry\_descr}: Descripción de la industria
+\end{itemize}
+
+\subsection{Cálculo de Dependencias}
+
+Una vez preparados los datos, el cálculo completo de dependencias para todos los países se realiza con:
+
+\begin{verbatim}
+resultados_dependencia = analisis.calcular_dependencias_todos_paises(datos_comercio)
+\end{verbatim}
+
+Este comando ejecuta el proceso completo de análisis, incluyendo:
+\begin{itemize}
+    \item Cálculo de dependencias directas
+    \item Procesamiento de efectos indirectos
+    \item Generación de matrices inversas
+    \item Cálculo de dependencias totales
+\end{itemize}
+
+\subsection{Acceso a los Resultados}
+
+Los resultados se almacenan en un diccionario donde las claves son los códigos de países y los valores son DataFrames con las dependencias calculadas. Por ejemplo, para acceder a los resultados de España:
+
+\begin{verbatim}
+dependencia_espana = resultados_dependencia['ESP']
+\end{verbatim}
+
+El DataFrame resultante contiene:
+\begin{itemize}
+    \item Filas: diferentes industrias analizadas
+    \item Columnas: países respecto a los cuales se mide la dependencia
+    \item Valores: índices de dependencia calculados
+\end{itemize}
+
+\subsection{Análisis Adicionales}
+
+Para obtener estadísticas y análisis complementarios, se puede utilizar:
+
+\begin{verbatim}
+analisis_completo = analisis.analizar_resultados()
+resumen_espana = analisis.obtener_resumen_pais('ESP')
+\end{verbatim}
+
+Estos métodos proporcionan:
+\begin{itemize}
+    \item Estadísticas descriptivas por país e industria
+    \item Rankings de dependencia
+    \item Índices de concentración
+    \item Visualizaciones de resultados
+\end{itemize}
+
+\subsection{Consideraciones Prácticas}
+
+En la implementación práctica, es importante tener en cuenta:
+
+\begin{enumerate}
+    \item \textbf{Gestión de memoria}: Para conjuntos de datos muy grandes, es recomendable monitorear el uso de memoria y considerar el procesamiento por lotes si es necesario.
+    
+    \item \textbf{Validación de datos}: Verificar la integridad y consistencia de los datos de entrada antes de proceder con el análisis.
+    
+    \item \textbf{Tiempo de procesamiento}: El tiempo de cálculo aumenta significativamente con el número de países e industrias incluidos en el análisis.
+\end{enumerate}
+
+
+\section{Conclusiones}
+
+La implementación descrita en este documento representa una herramienta significativa para el análisis de dependencias comerciales internacionales. El sistema combina rigor metodológico con practicidad computacional, proporcionando un marco robusto para la evaluación de vulnerabilidades en las cadenas de suministro globales.
+
+La capacidad del sistema para capturar tanto dependencias directas como indirectas, junto con su análisis de concentración, ofrece una visión más completa de las relaciones comerciales internacionales que los métodos tradicionales. Esta comprensión más profunda resulta especialmente valiosa en el contexto actual de creciente complejidad en las cadenas de valor globales.
+
+Las posibilidades de extensión y mejora continua del sistema garantizan su relevancia futura como herramienta de análisis económico y planificación estratégica. Su implementación modular y bien documentada facilita su adaptación a nuevos requisitos y casos de uso, asegurando su utilidad continuada en el análisis de dependencias comerciales internacionales.
+
+\end{document}

@@ -1,0 +1,251 @@
+\documentclass[11pt,a4paper]{article}
+
+\UseRawInputEncoding
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage{tcolorbox}
+\usepackage{enumitem}
+\usepackage{helvet}
+\renewcommand{\familydefault}{\sfdefault}
+
+% Configuracion de colores
+\definecolor{titlecolor}{RGB}{31, 61, 90}
+\definecolor{sectioncolor}{RGB}{47, 93, 138}
+\definecolor{codebackground}{RGB}{248, 248, 248}
+\definecolor{codecomment}{RGB}{112, 128, 144}
+\definecolor{codekeyword}{RGB}{0, 119, 170}
+\definecolor{codestring}{RGB}{170, 55, 55}
+
+% Configuracion de titulos
+\titleformat{\section}
+{\Large\bfseries\color{sectioncolor}}{\thesection}{1em}{}
+\titleformat{\subsection}
+{\large\bfseries\color{sectioncolor}}{\thesubsection}{1em}{}
+
+% Configuracion de encabezado y pie de pagina
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small Analisis de Relaciones Internacionales}
+\fancyhead[R]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% Configuracion para codigo Python con soporte para comentarios en espanol
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    backgroundcolor=\color{codebackground},
+    commentstyle=\color{codecomment},
+    keywordstyle=\color{codekeyword},
+    stringstyle=\color{codestring},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    numbersep=5pt,
+    frame=none,
+    framesep=3mm,
+    showstringspaces=false,
+    xleftmargin=15pt,
+    xrightmargin=15pt,
+    literate={á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+    {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+    {ñ}{{\~n}}1 {Ñ}{{\~N}}1
+}
+
+\title{\color{titlecolor}\Huge Clasificación de Países en un Contexto de Riesgo: \\
+       Un Análisis Multidimensional de las Relaciones Internacionales\\[1cm]
+       \large Real Instituto Elcano}
+\author{\large Documentación Técnica}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+
+\begin{tcolorbox}[colback=blue!5,colframe=blue!35,title=Resumen]
+Este estudio desarrolla una metodología para la clasificación de países según su nivel de riesgo desde la perspectiva española, integrando dimensiones geopolíticas, comerciales y culturales. Mediante técnicas avanzadas de análisis multivariante y clustering jerárquico, se identifican patrones en las relaciones internacionales que permiten categorizar países en grupos con características similares. El análisis revela cinco clusters distintos que reflejan diferentes niveles y tipos de relación con España, proporcionando una base cuantitativa para la evaluación de riesgos y la toma de decisiones en política exterior. Los resultados sugieren que las relaciones internacionales contemporáneas están fuertemente influenciadas por una combinación de factores históricos, alineamientos geopolíticos actuales y vínculos económicos, cuya interacción determina la naturaleza y el nivel de riesgo en las relaciones bilaterales.
+\end{tcolorbox}
+
+\textbf{Palabras clave:} Relaciones internacionales, análisis de riesgo, clustering jerárquico, análisis multidimensional, política exterior española, dependencias comerciales.
+
+\section{Introducción}
+
+En el contexto actual de las relaciones internacionales, caracterizado por una creciente complejidad e interdependencia, la necesidad de herramientas analíticas robustas para la evaluación de riesgos y la toma de decisiones se ha vuelto fundamental. Este estudio propone una metodología cuantitativa para clasificar países según su nivel de riesgo desde la perspectiva española, integrando aspectos geopolíticos, comerciales y culturales en un marco analítico comprehensivo.
+
+\subsection{Marco Conceptual}
+
+Las relaciones internacionales contemporáneas se caracterizan por una triple dimensión de interacciones. La dimensión geopolítica refleja las alineaciones estratégicas y posiciones en conflictos globales. La dimensión comercial captura la intrincada red de acuerdos e interdependencias económicas. La dimensión cultural incorpora los vínculos históricos, lingüísticos y legales que persisten en el tiempo y condicionan las relaciones bilaterales.
+
+Esta multidimensionalidad requiere un enfoque analítico que pueda integrar y ponderar adecuadamente cada aspecto. La metodología desarrollada en este estudio permite evaluar objetivamente estas dimensiones y sus interacciones, proporcionando una base cuantitativa para la clasificación de países según su perfil de riesgo.
+
+\subsection{Contexto Geopolítico Actual}
+
+El panorama internacional de 2024 presenta desafíos significativos para la evaluación de riesgos en las relaciones internacionales. La invasión rusa de Ucrania ha alterado fundamentalmente el equilibrio geopolítico europeo, mientras que la creciente competencia entre Estados Unidos y China genera nuevas dinámicas de polarización global. La pandemia de COVID-19 ha expuesto vulnerabilidades en las cadenas de suministro internacionales, enfatizando la importancia de diversificar las relaciones comerciales.
+
+España, como actor medio en el sistema internacional, debe navegar estas complejidades considerando su posición única: miembro de la Unión Europea, puente natural con América Latina, y actor relevante en el Mediterráneo. Esta posición requiere un análisis matizado de sus relaciones internacionales que considere múltiples dimensiones de riesgo.
+
+\subsection{Objetivos del Estudio}
+
+Este trabajo persigue tres objetivos principales:
+
+1. Desarrollar una metodología cuantitativa para la evaluación multidimensional de las relaciones internacionales de España.
+
+2. Identificar y caracterizar grupos de países con patrones similares en su relación con España, proporcionando una base para la evaluación de riesgos.
+
+3. Ofrecer herramientas analíticas para informar la toma de decisiones en política exterior y estrategia comercial.
+
+\subsection{Alcance y Limitaciones}
+
+El análisis se basa en datos del año 2019, proporcionando una instantánea pre-pandémica de las relaciones internacionales. Esta elección temporal permite evaluar las relaciones estructurales sin las distorsiones introducidas por la crisis del COVID-19, aunque implica ciertas limitaciones en la captura de desarrollos recientes.
+
+El estudio reconoce varias limitaciones metodológicas. Primero, la cuantificación de aspectos cualitativos de las relaciones internacionales implica necesariamente cierta pérdida de matices. Segundo, la naturaleza dinámica de las relaciones internacionales significa que algunos patrones identificados pueden evolucionar rápidamente. Tercero, la disponibilidad y calidad de datos varía significativamente entre países y dimensiones de análisis.
+
+A pesar de estas limitaciones, la metodología propuesta ofrece un marco sistemático y replicable para la evaluación de riesgos en las relaciones internacionales, proporcionando una base objetiva para la toma de decisiones estratégicas.
+
+\section{Marco Teórico y Dimensiones de Análisis}
+
+El análisis de las relaciones internacionales en un contexto de riesgo requiere un marco teórico que integre diferentes dimensiones de interacción entre países. Este estudio adopta un enfoque multidimensional que reconoce la complejidad inherente a las relaciones internacionales contemporáneas, considerando tres dimensiones fundamentales: geopolítica, comercial y cultural. La interacción entre estas dimensiones proporciona una visión comprehensiva de las relaciones bilaterales y permite una evaluación más precisa de los riesgos asociados.
+
+\subsection{Dimensión Geopolítica}
+
+La dimensión geopolítica captura las dinámicas de poder y alineamiento en el sistema internacional contemporáneo. En el contexto actual, caracterizado por una creciente competencia entre potencias globales, las relaciones internacionales se articulan principalmente a través de patrones de alineación con los principales centros de poder: Estados Unidos, la Unión Europea y China. Esta alineación se manifiesta tanto en la participación en organizaciones internacionales como en los patrones de votación en foros multilaterales.
+
+Un elemento crucial en la evaluación de la dimensión geopolítica es el posicionamiento de los países ante conflictos internacionales significativos, como la invasión rusa de Ucrania. Las respuestas de los países a esta crisis, manifestadas tanto en su participación en iniciativas diplomáticas como en su posición en votaciones de la ONU, revelan alineaciones geopolíticas fundamentales. Además, la existencia de sanciones económicas, restricciones militares y limitaciones de movilidad internacional proporciona indicadores tangibles de distanciamiento geopolítico entre países.
+
+\subsection{Dimensión Comercial}
+
+La dimensión comercial evalúa el grado y naturaleza de la integración económica entre países, un aspecto que ha cobrado especial relevancia en el contexto de la globalización y las cadenas de valor internacionales. Esta dimensión se materializa principalmente a través de la red de acuerdos comerciales que vinculan a los países, desde acuerdos multilaterales como la membresía en la OMC hasta acuerdos bilaterales específicos.
+
+La profundidad de las relaciones comerciales se manifiesta no solo en la existencia de acuerdos formales, sino también en el grado de interdependencia económica entre países. Esta interdependencia se refleja en el volumen de comercio bilateral, la complementariedad de las economías y la existencia de dependencias sectoriales específicas. La crisis del COVID-19 ha puesto de manifiesto la importancia de comprender y gestionar estas interdependencias comerciales, especialmente en sectores estratégicos.
+
+\subsection{Dimensión Cultural}
+
+La dimensión cultural reconoce que las relaciones internacionales están profundamente influenciadas por vínculos históricos y socioculturales que persisten en el tiempo. Las relaciones coloniales históricas, por ejemplo, continúan modelando patrones de interacción entre países, tanto en términos de oportunidades como de desafíos. Estos vínculos históricos se manifiestan frecuentemente en la existencia de sistemas legales compartidos, que facilitan las interacciones institucionales y comerciales.
+
+La proximidad cultural, medida a través de elementos como la distancia lingüística y los valores compartidos, juega un papel fundamental en la facilidad y profundidad de las interacciones entre países. La similitud lingüística, en particular, puede reducir significativamente los costos de transacción en las relaciones bilaterales y facilitar el intercambio cultural y económico.
+
+\subsection{Interacción entre Dimensiones}
+
+Las tres dimensiones analizadas no operan de manera aislada, sino que interactúan y se refuerzan mutuamente en formas complejas. La alineación geopolítica puede facilitar o dificultar la integración comercial, mientras que los vínculos culturales pueden influir en las preferencias de alineación geopolítica. A su vez, las relaciones comerciales intensas pueden fortalecer las conexiones culturales y crear incentivos para el alineamiento geopolítico.
+
+Esta interacción multidimensional requiere un enfoque analítico que pueda capturar tanto la complejidad de cada dimensión individual como las sinergias entre ellas. El marco teórico propuesto proporciona la base para el desarrollo de una metodología cuantitativa que permita clasificar países según su perfil de riesgo, considerando simultáneamente aspectos geopolíticos, comerciales y culturales. Esta aproximación multidimensional permite una evaluación más completa y matizada de las relaciones internacionales contemporáneas, especialmente relevante para países como España que deben navegar múltiples esferas de influencia y relación.
+\section{Metodología}
+
+El presente estudio emplea una metodología que combina técnicas de análisis multivariante con métodos de clasificación jerárquica para evaluar y categorizar las relaciones internacionales. Este enfoque metodológico permite procesar y analizar de manera sistemática la compleja red de interacciones entre países, considerando simultáneamente factores geopolíticos, comerciales y culturales.
+
+\subsection{Datos y Fuentes}
+
+La base empírica del estudio se construye a partir de datos del año 2019, seleccionado estratégicamente por representar un período de relativa estabilidad previo a las disrupciones globales causadas por la pandemia de COVID-19. Los datos provienen de múltiples fuentes oficiales y bases de datos internacionales reconocidas. La información sobre acuerdos comerciales y membresías en organizaciones internacionales se obtiene de la Organización Mundial del Comercio y otras organizaciones multilaterales. Los datos sobre alineaciones geopolíticas incluyen registros de votaciones en la ONU y posicionamientos oficiales ante conflictos internacionales. La información cultural incorpora datos lingüísticos, históricos y legales de diversas fuentes académicas y oficiales.
+
+\subsection{Procesamiento y Transformación de Datos}
+
+El análisis se implementa mediante un conjunto de herramientas especializadas desarrolladas en Python, utilizando bibliotecas como pandas para el manejo de datos, sklearn para el procesamiento estadístico, y prince para el análisis factorial. El proceso de preparación de datos incluye la normalización de variables continuas y la codificación apropiada de variables categóricas.
+
+\begin{tcolorbox}[colback=codebackground,title=Procesamiento Inicial]
+\begin{lstlisting}
+import pandas as pd
+from sklearn.preprocessing import MinMaxScaler
+import numpy as np
+from prince import FAMD
+
+# Carga y filtrado inicial de datos
+df = pd.read_csv("Final_Database_Trade_Costs_2000_2019_Complete.csv")
+df_2019 = df[df['year'] == 2019]
+df_2019 = df_2019[df_2019['iso_o'] != df_2019['iso_d']]
+
+# Normalización de variables continuas
+scaler = MinMaxScaler()
+df_2019['geopol_dist_norm'] = scaler.fit_transform(df_2019[['geopol_dist']])
+df_2019['lang_dist_norm'] = scaler.fit_transform(df_2019[['lang_dist']])
+\end{lstlisting}
+\end{tcolorbox}
+
+\subsection{Análisis Factorial de Datos Mixtos}
+
+Para cada dimensión de análisis (geopolítica, comercial y cultural), se aplica un Análisis Factorial de Datos Mixtos (FAMD) que permite integrar variables tanto continuas como categóricas en un marco analítico coherente. Esta técnica resulta particularmente apropiada dado que las relaciones internacionales se caracterizan por una mezcla de indicadores cuantitativos y cualitativos.
+
+El FAMD se aplica de manera independiente a cada conjunto de variables dimensionales, permitiendo reducir la complejidad de los datos mientras se preserva la información esencial sobre las relaciones entre países. Para la dimensión geopolítica, se consideran variables como alineaciones políticas, participación en organizaciones internacionales y posicionamientos en conflictos. En la dimensión comercial, se incluyen diversos tipos de acuerdos comerciales y medidas de integración económica. La dimensión cultural incorpora distancias lingüísticas, relaciones históricas y sistemas legales compartidos.
+
+\subsection{Integración Multidimensional}
+
+La integración de las tres dimensiones se realiza mediante la combinación de los resultados del FAMD en un espacio analítico común. Este proceso permite considerar simultáneamente la influencia de factores geopolíticos, comerciales y culturales en las relaciones bilaterales, manteniendo la interpretabilidad de los resultados.
+
+\begin{tcolorbox}[colback=codebackground,title=Integración de Dimensiones]
+\begin{lstlisting}
+# Aplicación de FAMD a cada dimensión
+famd_geo = FAMD(n_components=1, random_state=42)
+famd_cult = FAMD(n_components=1, random_state=42)
+
+# Transformación y normalización de resultados
+geo_result = famd_geo.fit_transform(df_filtered[vars_geo])
+cult_result = famd_cult.fit_transform(df_filtered[vars_cult])
+
+# Integración de dimensiones
+df_filtered['dim_geo'] = scaler.fit_transform(geo_result)
+df_filtered['dim_cult'] = scaler.fit_transform(cult_result)
+df_filtered['dim_trade'] = df_filtered[vars_trade].mean(axis=1)
+\end{lstlisting}
+\end{tcolorbox}
+
+\subsection{Clasificación mediante Clustering Aglomerativo}
+
+La clasificación final de países se realiza mediante un algoritmo de clustering aglomerativo jerárquico, que permite identificar grupos naturales de países con patrones similares en sus relaciones internacionales. Este método resulta particularmente apropiado para este análisis por su capacidad para revelar estructuras jerárquicas en los datos y su robustez ante valores atípicos.
+
+El proceso de clustering utiliza la distancia euclidiana como medida de similitud y el método de Ward para la fusión de clusters, buscando minimizar la varianza intra-cluster. La elección del número final de clusters se basa en una combinación de criterios estadísticos y consideraciones prácticas relacionadas con la interpretabilidad y utilidad de los resultados para la toma de decisiones en política exterior.
+
+\subsection{Validación y Evaluación de Resultados}
+
+La validación de los resultados se realiza mediante múltiples criterios, incluyendo métricas estadísticas como el coeficiente de silueta y el índice de Davies-Bouldin, así como evaluaciones cualitativas de la coherencia y relevancia práctica de los clusters identificados. Este proceso de validación asegura que los resultados sean tanto estadísticamente robustos como prácticamente útiles para la toma de decisiones en política exterior.
+\section{Análisis Dimensional}
+
+El análisis detallado de cada dimensión revela patrones específicos en las relaciones internacionales de España y proporciona la base para la posterior clasificación de países. A continuación, se presentan los resultados del análisis para cada dimensión, así como su integración en un marco comprehensivo.
+
+\subsection{Análisis Geopolítico}
+
+El análisis de la dimensión geopolítica revela patrones complejos de alineación y distanciamiento en las relaciones internacionales de España. La aplicación del Análisis Factorial de Datos Mixtos (FAMD) a las variables geopolíticas muestra que las principales fuentes de variación en las relaciones geopolíticas se encuentran en el posicionamiento ante conflictos globales y la pertenencia a organizaciones internacionales.
+
+Se observa una clara diferenciación entre tres grupos principales de países. El primer grupo incluye los socios tradicionales de España dentro de la Unión Europea y la OTAN, caracterizados por una alta alineación en posiciones geopolíticas y una participación consistente en organizaciones internacionales comunes. El segundo grupo comprende países que mantienen posiciones divergentes en cuestiones internacionales clave, como el conflicto en Ucrania. El tercer grupo incluye países con posiciones intermedias o variables según el contexto específico.
+
+La actualización de las variables relacionadas con Rusia ha resultado particularmente significativa, reflejando cambios sustanciales en las relaciones internacionales posteriores a la invasión de Ucrania. Esta actualización ha permitido capturar de manera más precisa las nuevas dinámicas de alineación geopolítica en el contexto europeo y global.
+
+\subsection{Análisis Comercial}
+
+El estudio de la dimensión comercial evidencia una estructura compleja de relaciones económicas, donde la intensidad de los vínculos comerciales no siempre se corresponde con las alineaciones geopolíticas. El análisis de los acuerdos comerciales y las relaciones económicas revela varios niveles de integración comercial.
+
+Los resultados muestran una clara estratificación en las relaciones comerciales de España. El nivel más alto de integración se observa con los países de la Unión Europea, caracterizado por un marco regulatorio común y una intensa actividad comercial. Un segundo nivel incluye países con acuerdos comerciales preferenciales pero fuera del mercado único europeo. El tercer nivel comprende países con relaciones comerciales significativas pero sin marcos preferenciales específicos.
+
+Es notable que algunos países mantienen relaciones comerciales intensas con España a pesar de divergencias geopolíticas significativas, lo que subraya la relativa independencia entre las dimensiones comercial y geopolítica en ciertos casos.
+
+\subsection{Análisis Cultural}
+
+La dimensión cultural muestra una influencia persistente de los vínculos históricos y lingüísticos en las relaciones internacionales actuales. El análisis revela tres patrones principales de proximidad cultural con España.
+
+El primer patrón incluye países de América Latina, donde la similitud lingüística y los lazos históricos crean una base natural para relaciones más estrechas. El segundo patrón comprende países europeos que, a pesar de las diferencias lingüísticas, comparten marcos culturales y legales similares. El tercer patrón incluye países con menor proximidad cultural pero con los que se han desarrollado vínculos significativos en otras dimensiones.
+
+La distancia lingüística ha demostrado ser un factor particularmente relevante, actuando como facilitador o barrera en las relaciones bilaterales, incluso en casos donde existen fuertes vínculos comerciales o geopolíticos.
+
+\subsection{Integración de las Dimensiones}
+
+La integración de las tres dimensiones analizadas revela patrones complejos de interacción que no son evidentes cuando se considera cada dimensión de manera aislada. Este análisis integrado permite identificar varios perfiles de relación con España:
+
+1. Países con alta afinidad en las tres dimensiones, principalmente socios europeos cercanos.
+
+2. Países con fuerte proximidad cultural pero menor integración en otras dimensiones, como varios países latinoamericanos.
+
+3. Países con fuertes vínculos comerciales pero menor proximidad en otras dimensiones, incluyendo algunas economías asiáticas.
+
+4. Países con alineación geopolítica pero limitada integración en otras dimensiones.
+
+5. Países con baja proximidad en todas las dimensiones.
+
+Esta integración dimensional proporciona la base para la clasificación posterior mediante técnicas de clustering, permitiendo una categorización más matizada y comprehensiva de las relaciones internacionales de España.
+\end{document}
