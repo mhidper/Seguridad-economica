@@ -56,14 +56,30 @@ def create_treemap(df, country):
         1: "Estados con Desafíos Geopolíticos",
         2: "Economías Avanzadas y Aliados Estratégicos",
         3: "Socios Históricos y Culturales",
-        4: "América Latina: Aliados Regionales Clave"
+        4: "América Latina: Aliados Regionales Clave",
+        -1: "Cluster No Asignado"  # Para países sin cluster asignado
     }
     
+    # Obtener los colores
     cluster_colors = get_cluster_colors()
+    cluster_colors[-1] = '#808080'  # Gris para cluster no asignado
     
+    # Asegurarse de que no hay valores nulos
+    df = df.copy()
+    df['cluster'] = df['cluster'].fillna(-1).astype(int)
     df['cluster_name'] = df['cluster'].map(cluster_names)
+    df['cluster_name'] = df['cluster_name'].fillna("Cluster No Asignado")
     df['cluster_color'] = df['cluster'].map(cluster_colors)
+    
+    # Crear una columna combinada para el path
     df['Country_Cluster'] = df['Country'] + ' (' + df['cluster_name'] + ')'
+    
+    # Asegurarse de que todos los valores numéricos son válidos
+    df['Value'] = pd.to_numeric(df['Value'], errors='coerce')
+    df = df.dropna(subset=['Value'])
+    
+    if df.empty:
+        raise ValueError("No hay datos válidos para crear el treemap")
     
     fig = px.treemap(
         df,
@@ -227,8 +243,8 @@ def display_statistics(viz_data, selected_industry):
 def main():
     st.title('Análisis de Dependencias Comerciales')
     
-    # Cargar datos usando las funciones actualizadas del módulo load_data
     try:
+        # Cargar datos
         data = load_dependency_data()
         clustering_data = load_clustering_data()
         
@@ -241,46 +257,66 @@ def main():
         
         with col1:
             dependent_countries = sorted(data['dependent_country'].unique())
+            # Establecer un valor por defecto
+            default_country_index = dependent_countries.index('ESP') if 'ESP' in dependent_countries else 0
             selected_country = st.selectbox(
                 'Seleccione un país para analizar sus dependencias:',
-                dependent_countries
+                dependent_countries,
+                index=default_country_index
             )
         
         if selected_country:
             dependency_matrix = build_dependency_matrix(data, selected_country)
             
-            if dependency_matrix is None:
-                st.error("Error al construir la matriz de dependencia.")
+            if dependency_matrix is None or dependency_matrix.empty:
+                st.error(f"No hay datos disponibles para {selected_country}")
                 return
                 
             with col2:
                 industries = ['Todas las industrias'] + list(dependency_matrix.index)
+                # Establecer un valor por defecto
                 selected_industry = st.selectbox(
                     'Seleccione una industria:',
-                    industries
+                    industries,
+                    index=0
                 )
             
             # Procesar datos y mostrar visualizaciones
             viz_data = process_data_for_visualization(dependency_matrix, clustering_data, selected_industry)
             
-            if viz_data is None:
-                st.error("Error al procesar los datos para visualización.")
+            if viz_data is None or viz_data.empty:
+                st.error(f"No hay datos de dependencias para mostrar con la selección actual")
                 return
             
-            # Crear pestañas para las diferentes visualizaciones
-            tab1, tab2 = st.tabs(["Mapa Mundial", "Árbol de Dependencias"])
-            
-            with tab1:
-                map_fig = create_choropleth_map(viz_data, selected_country, selected_industry)
-                st.plotly_chart(map_fig, use_container_width=True)
+            # Verificar que haya datos válidos antes de crear las visualizaciones
+            if not viz_data['Value'].isnull().all():
+                # Crear pestañas para las diferentes visualizaciones
+                tab1, tab2 = st.tabs(["Mapa Mundial", "Árbol de Dependencias"])
                 
-            with tab2:
-                tree_fig = create_treemap(viz_data, selected_country)
-                st.plotly_chart(tree_fig, use_container_width=True)
-            
-            # Mostrar estadísticas
-            display_statistics(viz_data, selected_industry)
-            
+                with tab1:
+                    try:
+                        map_fig = create_choropleth_map(viz_data, selected_country, selected_industry)
+                        st.plotly_chart(map_fig, use_container_width=True)
+                    except Exception as e:
+                        st.error(f"Error al crear el mapa: {str(e)}")
+                        
+                with tab2:
+                    try:
+                        # Asegurarse de que cluster_name no sea NaN
+                        viz_data['cluster'] = viz_data['cluster'].fillna(-1)  # Usar -1 para clusters desconocidos
+                        tree_fig = create_treemap(viz_data, selected_country)
+                        st.plotly_chart(tree_fig, use_container_width=True)
+                    except Exception as e:
+                        st.error(f"Error al crear el árbol de dependencias: {str(e)}")
+                
+                # Mostrar estadísticas solo si hay datos válidos
+                try:
+                    display_statistics(viz_data, selected_industry)
+                except Exception as e:
+                    st.error(f"Error al mostrar las estadísticas: {str(e)}")
+            else:
+                st.warning("No hay datos válidos para mostrar con la selección actual")
+                
     except Exception as e:
         st.error(f"Error inesperado: {str(e)}")
 
