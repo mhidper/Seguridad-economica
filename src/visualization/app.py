@@ -1,158 +1,55 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
 import plotly.express as px
-import plotly.graph_objects as go
 from pathlib import Path
 import gzip
-import warnings
-warnings.filterwarnings('ignore')
+from load_data import load_dependency_data, load_clustering_data, build_dependency_matrix, process_data_for_visualization
 
-# Configuración inicial de la página
+# Configuración de la página para usar todo el ancho
 st.set_page_config(
     page_title="Análisis de Dependencias Comerciales",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
 
-# Estilos CSS mejorados
+# CSS personalizado para eliminar padding y centrar contenido
 st.markdown("""
     <style>
-        /* Estilos generales */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-        
         .block-container {
-            padding: 2rem 3rem;
-            max-width: 1400px;
+            padding-top: 1rem;
+            padding-bottom: 0rem;
+            padding-left: 1rem;
+            padding-right: 1rem;
         }
-        
-        /* Título principal */
-        .main-title {
-            font-family: 'Inter', sans-serif;
-            font-weight: 700;
-            color: #1f2937;
-            font-size: 2.25rem;
-            margin-bottom: 2rem;
-            text-align: center;
-            padding: 1rem;
-            background: linear-gradient(90deg, #f3f4f6 0%, #ffffff 50%, #f3f4f6 100%);
-            border-radius: 12px;
+        .element-container {
+            width: 100%;
         }
-        
-        /* Cards y contenedores */
-        .stCard {
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-            background-color: white;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
+        [data-testid="stSidebar"] {
+            display: none;
         }
-        
-        /* Selectores */
-        .stSelectbox {
-            background-color: white;
-            border-radius: 8px;
-        }
-        
-        /* Métricas y estadísticas */
-        .metric-container {
-            background-color: #f8fafc;
-            border-radius: 8px;
-            padding: 1rem;
-            margin: 0.5rem 0;
-        }
-        
-        .metric-title {
-            font-size: 1rem;
-            color: #4b5563;
-            margin-bottom: 0.5rem;
-        }
-        
-        .metric-value {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #1f2937;
-        }
-        
-        /* Gráficos */
-        .plot-container {
-            background-color: white;
-            border-radius: 12px;
-            padding: 1rem;
-            margin: 1rem 0;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-        
-        /* Responsividad */
-        @media (max-width: 768px) {
-            .block-container {
-                padding: 1rem;
-            }
-            .main-title {
-                font-size: 1.75rem;
-            }
+        .stApp {
+            margin: auto;
         }
     </style>
 """, unsafe_allow_html=True)
 
-def load_dependency_data():
-    """
-    Carga los datos de dependencias desde el archivo CSV
-    """
-    try:
-        df = pd.read_csv('dependency_data.csv')
-        return df
-    except Exception as e:
-        st.error(f"Error al cargar los datos de dependencias: {e}")
-        return None
-
-def load_clustering_data():
-    """
-    Carga los datos de clustering desde el archivo CSV
-    """
-    try:
-        df = pd.read_csv('clustering_data.csv')
-        return df
-    except Exception as e:
-        st.error(f"Error al cargar los datos de clustering: {e}")
-        return None
-
 def get_cluster_colors():
     """
     Define los colores para cada cluster basados en el nivel de riesgo
+    Rojo -> Naranja -> Amarillo -> Verde claro -> Verde
     """
-    return {
-        1: '#ef4444',  # Rojo - Alto riesgo
-        0: '#f97316',  # Naranja - Riesgo medio-alto
-        4: '#eab308',  # Amarillo - Riesgo medio
-        2: '#22c55e',  # Verde - Riesgo bajo
-        3: '#15803d',  # Verde oscuro - Riesgo muy bajo
-        -1: '#94a3b8'  # Gris - Sin clasificar
+    cluster_colors = {
+        1: '#FF4444',  # Rojo para "Estados con Desafíos Geopolíticos"
+        0: '#FFA500',  # Naranja para "Economías Emergentes y en Desarrollo"
+        4: '#FFD700',  # Amarillo para "América Latina: Aliados Regionales Clave"
+        2: '#90EE90',  # Verde oscuro para "Socios Históricos y Culturales"
+        3: '#228B22'   # Verde claro para "Economías Avanzadas y Aliados Estratégicos"
     }
-
-def create_dependency_matrix(data, country):
-    """
-    Crea la matriz de dependencias para un país específico
-    """
-    try:
-        # Filtrar datos para el país seleccionado
-        country_data = data[data['dependent_country'] == country]
-        
-        # Crear matriz pivot
-        matrix = country_data.pivot(
-            index='industry',
-            columns='partner_country',
-            values='dependency_value'
-        )
-        
-        return matrix
-    except Exception as e:
-        st.error(f"Error al crear la matriz de dependencias: {e}")
-        return None
+    return cluster_colors
 
 def create_treemap(df, country):
     """
-    Crea un treemap mejorado de las dependencias
+    Crea el treemap usando plotly con colores basados en nivel de riesgo
     """
     cluster_names = {
         0: "Economías Emergentes y en Desarrollo",
@@ -160,14 +57,29 @@ def create_treemap(df, country):
         2: "Economías Avanzadas y Aliados Estratégicos",
         3: "Socios Históricos y Culturales",
         4: "América Latina: Aliados Regionales Clave",
-        -1: "Sin Clasificar"
+        -1: "Cluster No Asignado"  # Para países sin cluster asignado
     }
     
+    # Obtener los colores
     cluster_colors = get_cluster_colors()
+    cluster_colors[-1] = '#808080'  # Gris para cluster no asignado
     
+    # Asegurarse de que no hay valores nulos
     df = df.copy()
     df['cluster'] = df['cluster'].fillna(-1).astype(int)
     df['cluster_name'] = df['cluster'].map(cluster_names)
+    df['cluster_name'] = df['cluster_name'].fillna("Cluster No Asignado")
+    df['cluster_color'] = df['cluster'].map(cluster_colors)
+    
+    # Crear una columna combinada para el path
+    df['Country_Cluster'] = df['Country'] + ' (' + df['cluster_name'] + ')'
+    
+    # Asegurarse de que todos los valores numéricos son válidos
+    df['Value'] = pd.to_numeric(df['Value'], errors='coerce')
+    df = df.dropna(subset=['Value'])
+    
+    if df.empty:
+        raise ValueError("No hay datos válidos para crear el treemap")
     
     fig = px.treemap(
         df,
@@ -178,157 +90,158 @@ def create_treemap(df, country):
         color_discrete_map={name: cluster_colors[num] for num, name in cluster_names.items()}
     )
     
+    fig.update_traces(
+        textinfo="label+value",
+        texttemplate="<b>%{label}</b><br>%{value:.3f}",
+        hovertemplate='<b>%{label}</b><br>Dependencia: %{value:.3f}<extra></extra>'
+    )
+    
     fig.update_layout(
-        font_family="Inter",
+        width=None,
+        height=800,
         title={
-            'font_size': 24,
-            'font_weight': 'bold',
-            'y': 0.98,
-            'x': 0.5,
+            'y':0.95,
+            'x':0.5,
             'xanchor': 'center',
             'yanchor': 'top'
         },
-        margin=dict(t=80, l=20, r=20, b=20),
-        paper_bgcolor='rgba(0,0,0,0)',
-        plot_bgcolor='rgba(0,0,0,0)',
+        showlegend=True,
+        coloraxis_showscale=False,
+        legend=dict(
+            yanchor="top",
+            y=0.99,
+            xanchor="left",
+            x=0.01,
+            bgcolor="rgba(255, 255, 255, 0.8)"
+        )
     )
     
     return fig
 
-def create_choropleth(df, country, selected_industry):
+def create_choropleth_map(viz_data, country, selected_industry):
     """
-    Crea un mapa coroplético mejorado
+    Crea un mapa choropleth usando los códigos ISO3 de los países.
     """
     if selected_industry != 'Todas las industrias':
-        map_data = df[df['Industry'] == selected_industry]
+        map_data = viz_data[['Country', 'Value']].copy()
         title = f'Dependencias de {country} en {selected_industry}'
     else:
-        map_data = df.groupby('Country')['Value'].mean().reset_index()
-        title = f'Dependencias promedio de {country}'
+        map_data = viz_data.groupby('Country')['Value'].mean().reset_index()
+        title = f'Dependencias promedio de {country} por país'
     
     fig = px.choropleth(
         map_data,
         locations='Country',
-        locationmode='ISO-3',
         color='Value',
         hover_name='Country',
-        color_continuous_scale='RdYlBu_r',
+        color_continuous_scale='RdBu_r',
         title=title
     )
     
     fig.update_layout(
-        font_family="Inter",
         title={
-            'font_size': 20,
-            'y': 0.95,
-            'x': 0.5,
+            'y':0.95,
+            'x':0.5,
             'xanchor': 'center',
             'yanchor': 'top'
         },
         geo=dict(
             showframe=False,
             showcoastlines=True,
-            projection_type='equirectangular',
-            bgcolor='rgba(0,0,0,0)'
+            projection_type='equirectangular'
         ),
-        paper_bgcolor='rgba(0,0,0,0)',
-        margin=dict(l=0, r=0, t=60, b=0)
+        width=None,
+        height=600,
+        margin=dict(l=0, r=0, t=30, b=0)
     )
     
     return fig
 
 def display_statistics(viz_data, selected_industry):
     """
-    Muestra estadísticas mejoradas con mejor visualización
+    Muestra estadísticas consistentes con el treemap y añade análisis por cluster.
     """
-    st.markdown('<div class="stCard">', unsafe_allow_html=True)
+    cluster_names = {
+        0: "Economías Emergentes y en Desarrollo",
+        1: "Estados con Desafíos Geopolíticos",
+        2: "Economías Avanzadas y Aliados Estratégicos",
+        3: "Socios Históricos y Culturales",
+        4: "América Latina: Aliados Regionales Clave"
+    }
     
-    cols = st.columns(3)
+    cluster_colors = get_cluster_colors()
+    viz_data['cluster_name'] = viz_data['cluster'].map(cluster_names)
     
-    with cols[0]:
-        st.markdown("### 📊 Estadísticas Generales")
-        total_dep = viz_data['Value'].sum()
-        
-        st.markdown(
-            f'''
-            <div class="metric-container">
-                <div class="metric-title">Dependencia Total</div>
-                <div class="metric-value">{total_dep:.3f}</div>
-            </div>
-            ''',
-            unsafe_allow_html=True
-        )
-        
+    col1, col2, col3 = st.columns([1, 1, 1])
+
+    with col1:
+        st.subheader('Estadísticas de Dependencia')
         if selected_industry != 'Todas las industrias':
-            mean_dep = viz_data['Value'].mean()
-            max_dep = viz_data['Value'].max()
+            total_dependency = viz_data['Value'].sum()
+            st.metric(f'Dependencia Total para {selected_industry}', f'{total_dependency:.3f}')
             
-            st.markdown(
-                f'''
-                <div class="metric-container">
-                    <div class="metric-title">Dependencia Media</div>
-                    <div class="metric-value">{mean_dep:.3f}</div>
-                </div>
-                <div class="metric-container">
-                    <div class="metric-title">Dependencia Máxima</div>
-                    <div class="metric-value">{max_dep:.3f}</div>
-                </div>
-                ''',
-                unsafe_allow_html=True
+            cluster_stats = viz_data.groupby('cluster_name')['Value'].agg(['sum', 'count']).round(3)
+            cluster_stats['percentage'] = (cluster_stats['sum'] / total_dependency * 100).round(2)
+            cluster_stats = cluster_stats.sort_values('sum', ascending=False)
+            
+            st.write("Dependencia por Cluster:")
+            for idx, row in cluster_stats.iterrows():
+                st.write(f"**{idx}**")
+                st.write(f"- Suma: {row['sum']:.3f}")
+                st.write(f"- Porcentaje: {row['percentage']:.2f}%")
+                st.write(f"- Número de países: {row['count']}")
+    
+    with col2:
+        if selected_industry != 'Todas las industrias':
+            st.subheader(f'Principales Dependencias en {selected_industry}')
+            top_deps = viz_data.nlargest(10, 'Value')
+            top_df = pd.DataFrame({
+                'País': top_deps['Country'],
+                'Cluster': top_deps['cluster_name'],
+                'Dependencia': top_deps['Value'].round(3)
+            })
+            st.dataframe(top_df, width=None)
+        else:
+            st.subheader('Top 10 Dependencias más Altas')
+            top_10 = viz_data.nlargest(10, 'Value')
+            st.dataframe(
+                top_10[['Industry', 'Country', 'cluster_name', 'Value']].round(3),
+                width=None
             )
     
-    with cols[1]:
-        st.markdown("### 🔝 Principales Dependencias")
-        top_deps = viz_data.nlargest(5, 'Value')
-        
-        for _, row in top_deps.iterrows():
-            st.markdown(
-                f'''
-                <div class="metric-container">
-                    <div class="metric-title">{row["Country"]}</div>
-                    <div class="metric-value">{row["Value"]:.3f}</div>
-                    <div style="color: #6b7280; font-size: 0.875rem;">
-                        {row["cluster_name"]}
-                    </div>
-                </div>
-                ''',
-                unsafe_allow_html=True
+    with col3:
+        if selected_industry != 'Todas las industrias':
+            st.subheader('Distribución por Cluster')
+            
+            cluster_stats = viz_data.groupby('cluster_name')['Value'].sum().round(3)
+            
+            fig = px.pie(
+                values=cluster_stats,
+                names=cluster_stats.index,
+                title='Distribución de Dependencia por Cluster',
+                color=cluster_stats.index,
+                color_discrete_map={name: cluster_colors[num] for num, name in cluster_names.items()}
             )
-    
-    with cols[2]:
-        st.markdown("### 📈 Análisis por Cluster")
-        
-        cluster_stats = viz_data.groupby('cluster_name')['Value'].agg(['sum', 'count']).round(3)
-        cluster_stats['percentage'] = (cluster_stats['sum'] / total_dep * 100).round(2)
-        
-        fig = go.Figure()
-        
-        fig.add_trace(go.Bar(
-            y=cluster_stats.index,
-            x=cluster_stats['percentage'],
-            orientation='h',
-            marker_color=[get_cluster_colors().get(i, '#94a3b8') for i in range(len(cluster_stats))]
-        ))
-        
-        fig.update_layout(
-            title="Distribución por Cluster (%)",
-            font_family="Inter",
-            showlegend=False,
-            margin=dict(l=0, r=0, t=30, b=0),
-            paper_bgcolor='rgba(0,0,0,0)',
-            plot_bgcolor='rgba(0,0,0,0)',
-            height=300
-        )
-        
-        st.plotly_chart(fig, use_container_width=True)
-    
-    st.markdown('</div>', unsafe_allow_html=True)
+            
+            fig.update_traces(
+                textposition='inside',
+                textinfo='percent+label',
+                hovertemplate="<b>%{label}</b><br>" +
+                            "Dependencia: %{value:.3f}<br>" +
+                            "Porcentaje: %{percent}<br>" +
+                            "<extra></extra>"
+            )
+            
+            fig.update_layout(
+                showlegend=False,
+                height=400,
+                margin=dict(t=30, b=0, l=0, r=0)
+            )
+            
+            st.plotly_chart(fig, use_container_width=True)
 
 def main():
-    """
-    Función principal de la aplicación
-    """
-    st.markdown('<h1 class="main-title">Análisis de Dependencias Comerciales</h1>', unsafe_allow_html=True)
+    st.title('Análisis de Dependencias Comerciales')
     
     try:
         # Cargar datos
@@ -336,63 +249,76 @@ def main():
         clustering_data = load_clustering_data()
         
         if data is None or clustering_data is None:
-            st.error("⚠️ Error al cargar los datos. Verifique los archivos de entrada.")
+            st.error("Error al cargar los datos. Por favor verifica los archivos de entrada.")
             return
+            
+        # Contenedor para los selectores
+        col1, col2 = st.columns(2)
         
-        # Contenedor para selectores
-        st.markdown('<div class="stCard">', unsafe_allow_html=True)
-        cols = st.columns(2)
-        
-        with cols[0]:
-            countries = sorted(data['dependent_country'].unique())
-            default_country = 'ESP' if 'ESP' in countries else countries[0]
+        with col1:
+            dependent_countries = sorted(data['dependent_country'].unique())
+            # Establecer un valor por defecto
+            default_country_index = dependent_countries.index('ESP') if 'ESP' in dependent_countries else 0
             selected_country = st.selectbox(
-                '🌍 Seleccione un país para analizar:',
-                countries,
-                index=countries.index(default_country)
+                'Seleccione un país para analizar sus dependencias:',
+                dependent_countries,
+                index=default_country_index
             )
         
         if selected_country:
-            matrix = create_dependency_matrix(data, selected_country)
+            dependency_matrix = build_dependency_matrix(data, selected_country)
             
-            if matrix is None or matrix.empty:
+            if dependency_matrix is None or dependency_matrix.empty:
                 st.error(f"No hay datos disponibles para {selected_country}")
                 return
-            
-            with cols[1]:
-                industries = ['Todas las industrias'] + list(matrix.index)
+                
+            with col2:
+                industries = ['Todas las industrias'] + list(dependency_matrix.index)
+                # Establecer un valor por defecto
                 selected_industry = st.selectbox(
-                    '🏭 Seleccione una industria:',
-                    industries
+                    'Seleccione una industria:',
+                    industries,
+                    index=0
                 )
-        
-            # Crear pestañas para visualizaciones
-            tabs = st.tabs(["🗺️ Mapa Mundial", "🌳 Árbol de Dependencias"])
             
-            with tabs[0]:
+            # Procesar datos y mostrar visualizaciones
+            viz_data = process_data_for_visualization(dependency_matrix, clustering_data, selected_industry)
+            
+            if viz_data is None or viz_data.empty:
+                st.error(f"No hay datos de dependencias para mostrar con la selección actual")
+                return
+            
+            # Verificar que haya datos válidos antes de crear las visualizaciones
+            if not viz_data['Value'].isnull().all():
+                # Crear pestañas para las diferentes visualizaciones
+                tab1, tab2 = st.tabs(["Mapa Mundial", "Árbol de Dependencias"])
+                
+                with tab1:
+                    try:
+                        map_fig = create_choropleth_map(viz_data, selected_country, selected_industry)
+                        st.plotly_chart(map_fig, use_container_width=True)
+                    except Exception as e:
+                        st.error(f"Error al crear el mapa: {str(e)}")
+                        
+                with tab2:
+                    try:
+                        # Asegurarse de que cluster_name no sea NaN
+                        viz_data['cluster'] = viz_data['cluster'].fillna(-1)  # Usar -1 para clusters desconocidos
+                        tree_fig = create_treemap(viz_data, selected_country)
+                        st.plotly_chart(tree_fig, use_container_width=True)
+                    except Exception as e:
+                        st.error(f"Error al crear el árbol de dependencias: {str(e)}")
+                
+                # Mostrar estadísticas solo si hay datos válidos
                 try:
-                    map_fig = create_choropleth(matrix, selected_country, selected_industry)
-                    st.plotly_chart(map_fig, use_container_width=True)
+                    display_statistics(viz_data, selected_industry)
                 except Exception as e:
-                    st.error(f"Error al crear el mapa: {e}")
-            
-            with tabs[1]:
-                try:
-                    tree_fig = create_treemap(matrix, selected_country)
-                    st.plotly_chart(tree_fig, use_container_width=True)
-                except Exception as e:
-                    st.error(f"Error al crear el árbol de dependencias: {e}")
-            
-            # Mostrar estadísticas
-            try:
-                display_statistics(matrix, selected_industry)
-            except Exception as e:
-                st.error(f"Error al mostrar las estadísticas: {e}")
-        
-        st.markdown('</div>', unsafe_allow_html=True)
-        
+                    st.error(f"Error al mostrar las estadísticas: {str(e)}")
+            else:
+                st.warning("No hay datos válidos para mostrar con la selección actual")
+                
     except Exception as e:
-        st.error(f"Error inesperado: {e}")
+        st.error(f"Error inesperado: {str(e)}")
 
 if __name__ == '__main__':
     main()
