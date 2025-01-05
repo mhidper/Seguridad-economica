@@ -58,3 +58,4 @@ _minted*/
 *.sav
 *~
 .*.swp
+.codegpt
