@@ -1,9 +1,10 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import numpy as np
 from pathlib import Path
 import gzip
-from load_data import load_dependency_data, load_clustering_data, build_dependency_matrix, process_data_for_visualization
+from load_data_new import load_dependency_data, load_clustering_data, build_dependency_matrix, process_data_for_visualization
 
 # Configuración de la página para usar todo el ancho
 st.set_page_config(
@@ -157,9 +158,10 @@ def create_choropleth_map(viz_data, country, selected_industry):
     
     return fig
 
-def display_statistics(viz_data, selected_industry):
+def display_statistics(viz_data, selected_industry, selected_country, data):
     """
     Muestra estadísticas consistentes con el treemap y añade análisis por cluster.
+    Incluye una nueva columna para mostrar los principales países proveedores.
     """
     cluster_names = {
         0: "Economías Emergentes y en Desarrollo",
@@ -172,8 +174,10 @@ def display_statistics(viz_data, selected_industry):
     cluster_colors = get_cluster_colors()
     viz_data['cluster_name'] = viz_data['cluster'].map(cluster_names)
     
+    # Crear tres columnas
     col1, col2, col3 = st.columns([1, 1, 1])
 
+    # Columna 1: Estadísticas de Dependencia
     with col1:
         st.subheader('Estadísticas de Dependencia')
         if selected_industry != 'Todas las industrias':
@@ -191,6 +195,7 @@ def display_statistics(viz_data, selected_industry):
                 st.write(f"- Porcentaje: {row['percentage']:.2f}%")
                 st.write(f"- Número de países: {row['count']}")
     
+    # Columna 2: Principales Dependencias
     with col2:
         if selected_industry != 'Todas las industrias':
             st.subheader(f'Principales Dependencias en {selected_industry}')
@@ -209,36 +214,37 @@ def display_statistics(viz_data, selected_industry):
                 width=None
             )
     
+    # Columna 3: Principales Países Proveedores
     with col3:
-        if selected_industry != 'Todas las industrias':
-            st.subheader('Distribución por Cluster')
-            
-            cluster_stats = viz_data.groupby('cluster_name')['Value'].sum().round(3)
-            
-            fig = px.pie(
-                values=cluster_stats,
-                names=cluster_stats.index,
-                title='Distribución de Dependencia por Cluster',
-                color=cluster_stats.index,
-                color_discrete_map={name: cluster_colors[num] for num, name in cluster_names.items()}
+        st.subheader(f'Principales Proveedores de {selected_country}')
+        
+        # Calcular las dependencias ponderadas
+        def safe_weighted_average(group):
+            if group['trade_value'].sum() == 0:
+                return np.nan
+            return np.average(group['dependency_value'], weights=group['trade_value'])
+        
+        weighted_dependencies = data.groupby(['dependent_country', 'supplier_country']).apply(
+            safe_weighted_average
+        ).reset_index(name='weighted_dependency')
+        
+        # Filtrar para el país seleccionado
+        country_dependencies = weighted_dependencies[weighted_dependencies['dependent_country'] == selected_country]
+        country_dependencies = country_dependencies.dropna().sort_values('weighted_dependency', ascending=False)
+        
+        # Mostrar los principales proveedores
+        if not country_dependencies.empty:
+            st.write("Principales países proveedores:")
+            st.dataframe(
+                country_dependencies[['supplier_country', 'weighted_dependency']].head(10),
+                width=None,
+                column_config={
+                    'supplier_country': 'País Proveedor',
+                    'weighted_dependency': 'Dependencia Ponderada'
+                }
             )
-            
-            fig.update_traces(
-                textposition='inside',
-                textinfo='percent+label',
-                hovertemplate="<b>%{label}</b><br>" +
-                            "Dependencia: %{value:.3f}<br>" +
-                            "Porcentaje: %{percent}<br>" +
-                            "<extra></extra>"
-            )
-            
-            fig.update_layout(
-                showlegend=False,
-                height=400,
-                margin=dict(t=30, b=0, l=0, r=0)
-            )
-            
-            st.plotly_chart(fig, use_container_width=True)
+        else:
+            st.write("No hay datos de proveedores para este país.")
 
 def main():
     st.title('Análisis de Dependencias Comerciales')
@@ -257,7 +263,6 @@ def main():
         
         with col1:
             dependent_countries = sorted(data['dependent_country'].unique())
-            # Establecer un valor por defecto
             default_country_index = dependent_countries.index('ESP') if 'ESP' in dependent_countries else 0
             selected_country = st.selectbox(
                 'Seleccione un país para analizar sus dependencias:',
@@ -274,7 +279,6 @@ def main():
                 
             with col2:
                 industries = ['Todas las industrias'] + list(dependency_matrix.index)
-                # Establecer un valor por defecto
                 selected_industry = st.selectbox(
                     'Seleccione una industria:',
                     industries,
@@ -288,9 +292,7 @@ def main():
                 st.error(f"No hay datos de dependencias para mostrar con la selección actual")
                 return
             
-            # Verificar que haya datos válidos antes de crear las visualizaciones
             if not viz_data['Value'].isnull().all():
-                # Crear pestañas para las diferentes visualizaciones
                 tab1, tab2 = st.tabs(["Mapa Mundial", "Árbol de Dependencias"])
                 
                 with tab1:
@@ -302,16 +304,15 @@ def main():
                         
                 with tab2:
                     try:
-                        # Asegurarse de que cluster_name no sea NaN
-                        viz_data['cluster'] = viz_data['cluster'].fillna(-1)  # Usar -1 para clusters desconocidos
+                        viz_data['cluster'] = viz_data['cluster'].fillna(-1)
                         tree_fig = create_treemap(viz_data, selected_country)
                         st.plotly_chart(tree_fig, use_container_width=True)
                     except Exception as e:
                         st.error(f"Error al crear el árbol de dependencias: {str(e)}")
                 
-                # Mostrar estadísticas solo si hay datos válidos
                 try:
-                    display_statistics(viz_data, selected_industry)
+                    # Pasar el parámetro `data` a la función
+                    display_statistics(viz_data, selected_industry, selected_country, data)
                 except Exception as e:
                     st.error(f"Error al mostrar las estadísticas: {str(e)}")
             else:

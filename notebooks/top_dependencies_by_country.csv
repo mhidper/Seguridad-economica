@@ -1,0 +1,37 @@
+industry,trade_value,dependency_value,direct_dependency,indirect_dependency,country
+Motor vehicles,33986.97,77.32,67.39,9.93,CAN
+Travel,17363.0,89.5,89.5,0.0,CAN
+Other business services,14828.0,100.0,100.0,0.0,CAN
+Extraction crude petroleum and natural gas,12675.19,84.61,84.61,0.0,CAN
+Refined petroleum products,10467.18,88.89,88.18,0.71,CAN
+Transport,8269.0,100.0,100.0,0.0,CAN
+Refined petroleum products,29508.03,51.68,51.68,0.0,MEX
+Motor vehicles,10438.71,65.59,65.36,0.23,MEX
+Extraction crude petroleum and natural gas,6002.02,100.0,100.0,0.0,MEX
+Travel,14665.0,38.63,38.63,0.0,MEX
+Parts/accessories for automobiles,17616.01,29.85,28.25,1.59,MEX
+Plastics in primary forms; synthetic rubber,7143.84,61.01,58.41,2.59,MEX
+Education services,18180.0,100.0,100.0,0.0,CHN
+Travel,12961.0,100.0,100.0,0.0,CHN
+Aircraft and spacecraft,11253.24,62.03,44.3,17.72,CHN
+Charges for the use of intellectual property n.i.e.,9313.0,72.89,44.76,28.13,CHN
+Medical surgical and orthopaedic equipment,5297.51,57.63,31.01,26.62,CHN
+Financial services,4757.0,60.35,60.35,0.0,CHN
+Other business services,9592.0,100.0,100.0,0.0,JPN
+Travel,8082.0,100.0,100.0,0.0,JPN
+Aircraft and spacecraft,8824.15,73.76,64.65,9.11,JPN
+Transport,8505.0,61.06,61.06,0.0,JPN
+Charges for the use of intellectual property n.i.e.,6542.0,78.99,55.18,23.81,JPN
+Insurance and pension services,3700.0,100.0,100.0,0.0,JPN
+Aircraft and spacecraft,14001.72,69.31,55.22,14.09,GBR
+Financial services,18672.0,42.57,33.08,9.49,GBR
+Travel,11658.0,54.46,53.96,0.5,GBR
+Charges for the use of intellectual property n.i.e.,6156.0,71.38,30.39,41.0,GBR
+Other business services,16251.0,24.24,24.06,0.18,GBR
+Basic precious and non-ferrous metals,13483.51,26.66,15.49,11.17,GBR
+Pharmaceuticals medicinal chemicals etc.,3254.15,36.01,21.29,14.72,ESP
+Charges for the use of intellectual property n.i.e.,737.0,67.01,18.76,48.25,ESP
+Aircraft and spacecraft,1934.16,25.32,17.66,7.67,ESP
+Refined petroleum products,1504.69,29.51,29.51,0.0,ESP
+Nuts,678.85,52.18,52.18,0.0,ESP
+Extraction crude petroleum and natural gas,1828.14,16.58,5.64,10.95,ESP
